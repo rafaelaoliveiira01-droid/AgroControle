@@ -1,0 +1,16 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(produtor, "Produtor Rural", "Gerencia o estoque de insumos agrícolas.")
+
+System(sistema, "Sistema de Controle de Estoque", "Controla entradas, saídas e consulta de insumos.")
+
+SystemDb(banco, "Banco de Dados", "Armazena as informações do sistema.")
+
+System_Ext(fornecedor, "Fornecedor", "Fornece os insumos agrícolas.")
+
+Rel(produtor, sistema, "Utiliza")
+Rel(sistema, banco, "Lê e grava dados")
+Rel(sistema, fornecedor, "Consulta e cadastra fornecedores")
+
+@enduml

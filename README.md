@@ -6,10 +6,11 @@ Sistema desenvolvido para controlar o estoque de defensivos agrícolas e realiza
 ## Objetivo
 Facilitar o controle do estoque, evitar perdas, registrar entradas e saídas e acompanhar a utilização dos defensivos.
 
-## Tecnologias
-- MySQL
-- Git
-- GitHub
+## Arquitetura do Sistema
+
+### Diagrama de Contexto (C4 - Nível 1)
+
+![Diagrama de Contexto](contexto.png)
 
 ## Equipe
 Maria Eduarda Santos Coelho;

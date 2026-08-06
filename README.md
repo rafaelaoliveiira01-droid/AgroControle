@@ -8,9 +8,17 @@ Facilitar o controle do estoque, evitar perdas, registrar entradas e saídas e a
 
 ## Arquitetura do Sistema
 
-### Diagrama de Contexto (C4 - Nível 1)
+### C4 - Nível 1 (Contexto)
 
-![Diagrama de Contexto](contexto.png)
+![Contexto](contexto.png)
+
+### C4 - Nível 2 (Contêiner)
+
+![Container](container.png)
+
+### C4 - Nível 2 (Contêiner)
+
+![Container](container.png)
 
 ## Equipe
 Maria Eduarda Santos Coelho;

@@ -1,4 +1,4 @@
-# projeto-software-agro-Controle-de-Estoque-de-Defensivos-e-Rastreabilidade-Ambiental
+# AgroControle: Defensivos e Rastreabilidade Ambiental
 O projeto consiste no desenvolvimento de um sistema para gerenciar o estoque de defensivos agrícolas e registrar sua utilização na propriedade rural. O objetivo é garantir maior organização, segurança e conformidade com as normas ambientais, evitando desperdícios e controlando corretamente o uso dos produtos químicos.
 
 *Integrantes*:

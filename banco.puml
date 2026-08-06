@@ -1,0 +1,29 @@
+@startuml
+
+entity Defensivo {
+  * id : int
+  --
+  nome : varchar
+  fabricante : varchar
+  validade : date
+  quantidade : int
+}
+
+entity Aplicacao {
+  * id : int
+  --
+  data_aplicacao : date
+  quantidade : decimal
+}
+
+entity Talhao {
+  * id : int
+  --
+  nome : varchar
+  area : decimal
+}
+
+Defensivo ||--o{ Aplicacao
+Talhao ||--o{ Aplicacao
+
+@enduml

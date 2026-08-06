@@ -1,0 +1,22 @@
+@startuml
+
+title C4 Nível 1 - Diagrama de Contexto
+
+left to right direction
+
+actor "Produtor Rural" as Produtor
+actor "Técnico Agrícola" as Tecnico
+
+rectangle "Sistema de Controle de Estoque\n de Defensivos e\nRastreabilidade Ambiental" as Sistema
+
+database "Banco de Dados" as BD
+
+rectangle "Órgãos Fiscalizadores" as Orgao
+
+Produtor --> Sistema : Gerencia estoque\nConsulta relatórios
+Tecnico --> Sistema : Registra aplicações\nAtualiza informações
+
+Sistema --> BD : Armazena e consulta dados
+Sistema --> Orgao : Gera relatórios ambientais
+
+@enduml

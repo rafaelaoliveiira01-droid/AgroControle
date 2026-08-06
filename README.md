@@ -16,9 +16,6 @@ Facilitar o controle do estoque, evitar perdas, registrar entradas e saídas e a
 
 ![Container](container.png)
 
-### C4 - Nível 2 (Contêiner)
-
-![Container](container.png)
 
 ## Equipe
 Maria Eduarda Santos Coelho;

@@ -4,6 +4,32 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 
 
+estoque = [
+    {
+        "id": 1,
+        "nome": "Defensivo A",
+        "quantidade": 100,
+        "unidade": "litros",
+        "carencia": 14
+    },
+    {
+        "id": 2,
+        "nome": "Defensivo B",
+        "quantidade": 50,
+        "unidade": "litros",
+        "carencia": 7
+    }
+]
+talhoes = [
+    "Talhão 01",
+    "Talhão 02",
+    "Talhão 03"
+]
+
+aplicacoes = []
+@app.route("/")
+def inicio():
+    return render_template("index.html")
 @app.route("/rastreabilidade", methods=["GET", "POST"])
 def rastreabilidade():
 
@@ -123,3 +149,5 @@ def rastreabilidade():
         aplicacoes=aplicacoes,
         resultado=resultado
     )
+if __name__ == "__main__":
+    app.run(debug=True)

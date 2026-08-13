@@ -1,35 +1,318 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rastreabilidade Ambiental</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Rastreabilidade - AgroControle</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
 <body>
 
-    <h1>Rastreabilidade Ambiental</h1>
+    <h1>Registro de Aplicação de Defensivos</h1>
 
-    <form>
+    <p>
+        Registre cada aplicação para manter a
+        rastreabilidade da produção.
+    </p>
 
-        <label>Defensivo utilizado:</label>
-        <input type="text" name="defensivo" required>
 
-        <label>Data da aplicação:</label>
-        <input type="date" name="data" required>
+    {% if resultado %}
 
-        <label>Local da aplicação:</label>
-        <input type="text" name="local" required>
+        {% if resultado.tipo == "sucesso" %}
 
-        <label>Quantidade utilizada:</label>
-        <input type="number" name="quantidade" required>
+            <div class="sucesso">
 
-        <button type="submit">Registrar aplicação</button>
+                <h2>✅ Aplicação registrada!</h2>
+
+                <p>
+                    {{ resultado.mensagem }}
+                </p>
+
+                <p>
+                    <strong>
+                        Data de término da carência:
+                    </strong>
+
+                    {{ resultado.data_fim_carencia }}
+                </p>
+
+                {% if resultado.colheita_liberada %}
+
+                    <p class="status-liberada">
+                        ✅ {{ resultado.carencia }}
+                    </p>
+
+                {% else %}
+
+                    <p class="status-bloqueada">
+                        ⚠️ {{ resultado.carencia }}
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        {% else %}
+
+            <div class="alerta">
+
+                ⚠️ {{ resultado.mensagem }}
+
+            </div>
+
+        {% endif %}
+
+    {% endif %}
+
+
+    <h2>Nova aplicação</h2>
+
+
+    <form method="POST"
+          action="/rastreabilidade">
+
+
+        <label for="defensivo">
+            Defensivo:
+        </label>
+
+        <select
+            id="defensivo"
+            name="defensivo"
+            required>
+
+            <option value="">
+                Selecione um defensivo
+            </option>
+
+            {% for item in estoque %}
+
+                <option value="{{ item.id }}">
+
+                    {{ item.nome }}
+                    -
+                    {{ item.quantidade }}
+                    {{ item.unidade }}
+                    disponíveis
+                    -
+                    Carência:
+                    {{ item.carencia }} dias
+
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <label for="talhao">
+            Talhão:
+        </label>
+
+        <select
+            id="talhao"
+            name="talhao"
+            required>
+
+            <option value="">
+                Selecione o talhão
+            </option>
+
+            {% for talhao in talhoes %}
+
+                <option value="{{ talhao }}">
+                    {{ talhao }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <label for="data_aplicacao">
+            Data da aplicação:
+        </label>
+
+        <input
+            type="date"
+            id="data_aplicacao"
+            name="data_aplicacao"
+            required
+        >
+
+
+        <label for="quantidade">
+            Quantidade utilizada:
+        </label>
+
+        <input
+            type="number"
+            id="quantidade"
+            name="quantidade"
+            min="0.01"
+            step="0.01"
+            required
+        >
+
+
+        <label for="responsavel">
+            Responsável pela aplicação:
+        </label>
+
+        <input
+            type="text"
+            id="responsavel"
+            name="responsavel"
+            required
+        >
+
+
+        <button type="submit">
+            Registrar aplicação
+        </button>
 
     </form>
 
-    <a href="/">Voltar</a>
+
+    <h2>Estoque atual</h2>
+
+    <table>
+
+        <tr>
+
+            <th>Defensivo</th>
+            <th>Quantidade</th>
+            <th>Unidade</th>
+            <th>Carência</th>
+
+        </tr>
+
+
+        {% for item in estoque %}
+
+        <tr>
+
+            <td>
+                {{ item.nome }}
+            </td>
+
+            <td>
+                {{ item.quantidade }}
+            </td>
+
+            <td>
+                {{ item.unidade }}
+            </td>
+
+            <td>
+                {{ item.carencia }} dias
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+
+    <h2>Histórico de aplicações</h2>
+
+
+    {% if aplicacoes %}
+
+        <table>
+
+            <tr>
+
+                <th>Defensivo</th>
+                <th>Talhão</th>
+                <th>Data</th>
+                <th>Quantidade</th>
+                <th>Responsável</th>
+                <th>Carência</th>
+                <th>Fim da carência</th>
+                <th>Colheita</th>
+
+            </tr>
+
+
+            {% for aplicacao in aplicacoes %}
+
+            <tr>
+
+                <td>
+                    {{ aplicacao.defensivo }}
+                </td>
+
+                <td>
+                    {{ aplicacao.talhao }}
+                </td>
+
+                <td>
+                    {{ aplicacao.data }}
+                </td>
+
+                <td>
+                    {{ aplicacao.quantidade }}
+                    {{ aplicacao.unidade }}
+                </td>
+
+                <td>
+                    {{ aplicacao.responsavel }}
+                </td>
+
+                <td>
+                    {{ aplicacao.carencia }} dias
+                </td>
+
+                <td>
+                    {{ aplicacao.data_fim_carencia }}
+                </td>
+
+                <td>
+
+                    {% if aplicacao.colheita_liberada %}
+
+                        ✅ Liberada
+
+                    {% else %}
+
+                        ⚠️ Não liberada
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    {% else %}
+
+        <p>
+            Nenhuma aplicação registrada ainda.
+        </p>
+
+    {% endif %}
+
+
+    <br>
+
+    <a href="/">
+        Voltar ao início
+    </a>
 
 </body>
+
 </html>

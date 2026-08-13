@@ -1,65 +1,384 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, flash
+import sqlite3
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+app.secret_key = "projeto-agro-chave"
+
+DATABASE = "banco.db"
+
+
+def conectar_banco():
+    conexao = sqlite3.connect(DATABASE)
+    conexao.row_factory = sqlite3.Row
+    return conexao
+
+
+
+def criar_banco():
+    conexao = conectar_banco()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS defensivos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            carencia INTEGER NOT NULL,
+            estoque REAL NOT NULL
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS talhoes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS aplicacoes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            defensivo_id INTEGER NOT NULL,
+            talhao_id INTEGER NOT NULL,
+            data_aplicacao TEXT NOT NULL,
+            quantidade REAL NOT NULL,
+            responsavel TEXT NOT NULL,
+            data_liberacao TEXT NOT NULL,
+            FOREIGN KEY (defensivo_id) REFERENCES defensivos(id),
+            FOREIGN KEY (talhao_id) REFERENCES talhoes(id)
+        )
+    """)
+
+    # Defensivos de exemplo
+    quantidade = cursor.execute(
+        "SELECT COUNT(*) FROM defensivos"
+    ).fetchone()[0]
+
+    if quantidade == 0:
+        cursor.execute("""
+            INSERT INTO defensivos (nome, carencia, estoque)
+            VALUES
+            ('Defensivo VerdeMax', 14, 100),
+            ('Defensivo AgroSafe', 7, 80),
+            ('Defensivo Campo Forte', 21, 120)
+        """)
+
+    # Talhões de exemplo
+    quantidade = cursor.execute(
+        "SELECT COUNT(*) FROM talhoes"
+    ).fetchone()[0]
+
+    if quantidade == 0:
+        cursor.execute("""
+            INSERT INTO talhoes (nome)
+            VALUES
+            ('Talhão 01'),
+            ('Talhão 02'),
+            ('Talhão 03')
+        """)
+
+    conexao.commit()
+    conexao.close()
 
 
 @app.route("/")
-def inicio():
-    return render_template("index.html")
+def index():
 
+    conexao = conectar_banco()
 
-@app.route("/cadastro")
-def cadastro():
-    return render_template("cadastro.html")
+    defensivos = conexao.execute(
+        "SELECT * FROM defensivos"
+    ).fetchall()
 
+    aplicacoes = conexao.execute("""
+        SELECT
+            aplicacoes.*,
+            defensivos.nome AS defensivo,
+            talhoes.nome AS talhao,
+            defensivos.carencia
+        FROM aplicacoes
+        INNER JOIN defensivos
+            ON aplicacoes.defensivo_id = defensivos.id
+        INNER JOIN talhoes
+            ON aplicacoes.talhao_id = talhoes.id
+        ORDER BY aplicacoes.id DESC
+    """).fetchall()
 
-@app.route("/estoque")
-def estoque():
-    return render_template("estoque.html")
+    conexao.close()
 
+    hoje = datetime.now().date()
 
-@app.route("/rastreabilidade", methods=["GET", "POST"])
-def rastreabilidade():
+    dados_aplicacoes = []
 
-    resultado = None
+    for aplicacao in aplicacoes:
 
-    if request.method == "POST":
-
-        defensivo = request.form["defensivo"]
-
-        data_aplicacao = datetime.strptime(
-            request.form["data_aplicacao"],
+        data_liberacao = datetime.strptime(
+            aplicacao["data_liberacao"],
             "%Y-%m-%d"
         ).date()
 
-        carencia = int(request.form["carencia"])
-
-        data_fim = data_aplicacao + timedelta(days=carencia)
-
-        data_atual = datetime.today().date()
-
-        liberada = data_atual >= data_fim
-
-        if liberada:
-            mensagem = "Colheita liberada. O período de carência foi encerrado."
+        if hoje < data_liberacao:
+            status = "aguardando"
+            mensagem = "Colheita ainda não liberada"
         else:
-            mensagem = "Atenção: o período de carência ainda não terminou. A colheita não está liberada."
+            status = "liberada"
+            mensagem = "Colheita liberada"
 
-        resultado = {
-            "defensivo": defensivo,
-            "data_aplicacao": data_aplicacao.strftime("%d/%m/%Y"),
-            "carencia": carencia,
-            "data_fim": data_fim.strftime("%d/%m/%Y"),
-            "liberada": liberada,
+        dados_aplicacoes.append({
+            "id": aplicacao["id"],
+            "defensivo": aplicacao["defensivo"],
+            "talhao": aplicacao["talhao"],
+            "data_aplicacao": aplicacao["data_aplicacao"],
+            "quantidade": aplicacao["quantidade"],
+            "responsavel": aplicacao["responsavel"],
+            "data_liberacao": aplicacao["data_liberacao"],
+            "status": status,
             "mensagem": mensagem
-        }
+        })
 
     return render_template(
-        "rastreabilidade.html",
-        resultado=resultado
+        "index.html",
+        defensivos=defensivos,
+        aplicacoes=dados_aplicacoes
     )
 
 
+@app.route("/cadastro", methods=["GET", "POST"])
+def cadastro():
+
+    conexao = conectar_banco()
+
+    defensivos = conexao.execute(
+        "SELECT * FROM defensivos"
+    ).fetchall()
+
+    talhoes = conexao.execute(
+        "SELECT * FROM talhoes"
+    ).fetchall()
+
+    if request.method == "POST":
+
+        defensivo_id = request.form["defensivo_id"]
+        talhao_id = request.form["talhao_id"]
+        data_aplicacao = request.form["data_aplicacao"]
+        quantidade = float(request.form["quantidade"])
+        responsavel = request.form["responsavel"]
+
+        defensivo = conexao.execute(
+            "SELECT * FROM defensivos WHERE id = ?",
+            (defensivo_id,)
+        ).fetchone()
+
+        if defensivo is None:
+            flash("Defensivo não encontrado!", "erro")
+            conexao.close()
+            return redirect(url_for("cadastro"))
+
+        # Verifica estoque
+        if quantidade <= 0:
+            flash("Informe uma quantidade válida!", "erro")
+            conexao.close()
+            return redirect(url_for("cadastro"))
+
+        if quantidade > defensivo["estoque"]:
+            flash(
+                "Quantidade maior que o estoque disponível!",
+                "erro"
+            )
+            conexao.close()
+            return redirect(url_for("cadastro"))
+
+        # Calcula a data de término da carência
+        data = datetime.strptime(
+            data_aplicacao,
+            "%Y-%m-%d"
+        ).date()
+
+        data_liberacao = data + timedelta(
+            days=defensivo["carencia"]
+        )
+
+        # Salva a aplicação
+        conexao.execute("""
+            INSERT INTO aplicacoes
+            (
+                defensivo_id,
+                talhao_id,
+                data_aplicacao,
+                quantidade,
+                responsavel,
+                data_liberacao
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            defensivo_id,
+            talhao_id,
+            data_aplicacao,
+            quantidade,
+            responsavel,
+            data_liberacao.strftime("%Y-%m-%d")
+        ))
+
+        # Desconta do estoque
+        novo_estoque = defensivo["estoque"] - quantidade
+
+        conexao.execute("""
+            UPDATE defensivos
+            SET estoque = ?
+            WHERE id = ?
+        """, (
+            novo_estoque,
+            defensivo_id
+        ))
+
+        conexao.commit()
+        conexao.close()
+
+        flash(
+            "Aplicação registrada e estoque atualizado!",
+            "sucesso"
+        )
+
+        return redirect(url_for("index"))
+
+    conexao.close()
+
+    return render_template(
+        "cadastro.html",
+        defensivos=defensivos,
+        talhoes=talhoes
+    )
+
+@app.route("/estoque")
+def estoque():
+
+    conexao = conectar_banco()
+
+    defensivos = conexao.execute("""
+        SELECT *
+        FROM defensivos
+        ORDER BY nome
+    """).fetchall()
+
+    conexao.close()
+
+    return render_template(
+        "estoque.html",
+        defensivos=defensivos
+    )
+
+@app.route("/rastreabilidade")
+def rastreabilidade():
+
+    conexao = conectar_banco()
+
+    aplicacoes = conexao.execute("""
+        SELECT
+            aplicacoes.*,
+            defensivos.nome AS defensivo,
+            talhoes.nome AS talhao
+        FROM aplicacoes
+
+        INNER JOIN defensivos
+            ON aplicacoes.defensivo_id = defensivos.id
+
+        INNER JOIN talhoes
+            ON aplicacoes.talhao_id = talhoes.id
+
+        ORDER BY aplicacoes.data_aplicacao DESC
+    """).fetchall()
+
+    conexao.close()
+
+    hoje = datetime.now().date()
+
+    lista = []
+
+    for aplicacao in aplicacoes:
+
+        data_liberacao = datetime.strptime(
+            aplicacao["data_liberacao"],
+            "%Y-%m-%d"
+        ).date()
+
+        if hoje < data_liberacao:
+            status = "aguardando"
+        else:
+            status = "liberada"
+
+        lista.append({
+            "id": aplicacao["id"],
+            "defensivo": aplicacao["defensivo"],
+            "talhao": aplicacao["talhao"],
+            "data_aplicacao": aplicacao["data_aplicacao"],
+            "quantidade": aplicacao["quantidade"],
+            "responsavel": aplicacao["responsavel"],
+            "data_liberacao": aplicacao["data_liberacao"],
+            "status": status
+        })
+
+    return render_template(
+        "rastreabilidade.html",
+        aplicacoes=lista
+    )
+    
+@app.route("/aplicacoes")
+def aplicacoes():
+
+    conexao = conectar_banco()
+
+    aplicacoes = conexao.execute("""
+        SELECT
+            aplicacoes.*,
+            defensivos.nome AS defensivo,
+            talhoes.nome AS talhao
+        FROM aplicacoes
+        INNER JOIN defensivos
+            ON aplicacoes.defensivo_id = defensivos.id
+        INNER JOIN talhoes
+            ON aplicacoes.talhao_id = talhoes.id
+        ORDER BY aplicacoes.id DESC
+    """).fetchall()
+
+    conexao.close()
+
+    hoje = datetime.now().date()
+
+    lista = []
+
+    for aplicacao in aplicacoes:
+
+        data_liberacao = datetime.strptime(
+            aplicacao["data_liberacao"],
+            "%Y-%m-%d"
+        ).date()
+
+        if hoje < data_liberacao:
+            status = "aguardando"
+        else:
+            status = "liberada"
+
+        lista.append({
+            "id": aplicacao["id"],
+            "defensivo": aplicacao["defensivo"],
+            "talhao": aplicacao["talhao"],
+            "data_aplicacao": aplicacao["data_aplicacao"],
+            "quantidade": aplicacao["quantidade"],
+            "responsavel": aplicacao["responsavel"],
+            "data_liberacao": aplicacao["data_liberacao"],
+            "status": status
+        })
+
+    return render_template(
+        "aplicacoes.html",
+        aplicacoes=lista
+    )
+
+
+# ==========================
+# INICIAR SISTEMA
+# ==========================
+
 if __name__ == "__main__":
+    criar_banco()
     app.run(debug=True)

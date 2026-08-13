@@ -1,37 +1,164 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>Estoque | AgroControl</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-    <h1>Controle de Estoque</h1>
+<header>
 
-    <table>
+    <div class="logo">
+        🌱 AgroControl
+    </div>
 
-        <tr>
-            <th>Defensivo</th>
-            <th>Categoria</th>
-            <th>Quantidade</th>
-            <th>Unidade</th>
-            <th>Validade</th>
-        </tr>
+    <nav>
+        <a href="/">Início</a>
+        <a href="/cadastro">Nova Aplicação</a>
+        <a href="/aplicacoes">Aplicações</a>
+        <a href="/estoque" class="ativo">Estoque</a>
+        <a href="/rastreabilidade">Rastreabilidade</a>
+    </nav>
 
-        <tr>
-            <td>Exemplo</td>
-            <td>Exemplo</td>
-            <td>100</td>
-            <td>Litros</td>
-            <td>20/12/2026</td>
-        </tr>
+</header>
 
-    </table>
 
-    <a href="/">Voltar</a>
+<main>
+
+    <section class="secao">
+
+        <div class="titulo-secao">
+
+            <div>
+                <span class="tag">CONTROLE DE ESTOQUE</span>
+
+                <h1>
+                    Estoque de defensivos 📦
+                </h1>
+
+                <p>
+                    Acompanhe a quantidade disponível de cada produto.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="estoque-grid">
+
+            {% for defensivo in defensivos %}
+
+            <div class="estoque-card">
+
+                <div class="estoque-topo">
+
+                    <div class="produto-icone">
+                        🧪
+                    </div>
+
+                    <span class="
+                        {% if defensivo.estoque <= 20 %}
+                            estoque-baixo
+                        {% else %}
+                            estoque-normal
+                        {% endif %}
+                    ">
+
+                        {% if defensivo.estoque <= 20 %}
+                            Estoque baixo
+                        {% else %}
+                            Disponível
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <h2>
+                    {{ defensivo.nome }}
+                </h2>
+
+
+                <div class="estoque-info">
+
+                    <div>
+                        <span>Quantidade disponível</span>
+
+                        <strong>
+                            {{ "%.2f"|format(defensivo.estoque) }} L
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Período de carência</span>
+
+                        <strong>
+                            {{ defensivo.carencia }} dias
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="barra-fundo">
+
+                    {% set percentual =
+                        (defensivo.estoque / 120 * 100)
+                    %}
+
+                    {% if percentual > 100 %}
+                        {% set percentual = 100 %}
+                    {% endif %}
+
+                    <div
+                        class="barra-estoque"
+                        style="width: {{ percentual }}%;">
+                    </div>
+
+                </div>
+
+
+                {% if defensivo.estoque <= 20 %}
+
+                    <p class="aviso-estoque">
+                        ⚠ Atenção: estoque baixo.
+                    </p>
+
+                {% else %}
+
+                    <p class="estoque-ok">
+                        ✓ Estoque em quantidade adequada.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        🌱 AgroControl • Gestão agrícola inteligente
+    </p>
+
+</footer>
 
 </body>
+
 </html>

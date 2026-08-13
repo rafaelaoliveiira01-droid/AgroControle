@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Aplicações | AgroControl</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🌱 AgroControl
+    </div>
+
+    <nav>
+
+        <a href="/">Início</a>
+
+        <a href="/cadastro">
+            Nova Aplicação
+        </a>
+
+        <a href="/aplicacoes" class="ativo">
+            Aplicações
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <section class="secao">
+
+        <div class="titulo-secao">
+
+            <div>
+
+                <span class="tag">
+                    RASTREABILIDADE
+                </span>
+
+                <h1>
+                    Aplicações registradas 🌾
+                </h1>
+
+                <p>
+                    Histórico das aplicações de defensivos.
+                </p>
+
+            </div>
+
+            <a href="/cadastro" class="botao">
+                + Nova aplicação
+            </a>
+
+        </div>
+
+
+        {% if aplicacoes %}
+
+        <div class="tabela-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Defensivo</th>
+                        <th>Talhão</th>
+                        <th>Data</th>
+                        <th>Quantidade</th>
+                        <th>Responsável</th>
+                        <th>Liberação</th>
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for aplicacao in aplicacoes %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ aplicacao.defensivo }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            🌱 {{ aplicacao.talhao }}
+                        </td>
+
+                        <td>
+                            {{ aplicacao.data_aplicacao }}
+                        </td>
+
+                        <td>
+                            {{ aplicacao.quantidade }} L
+                        </td>
+
+                        <td>
+                            {{ aplicacao.responsavel }}
+                        </td>
+
+                        <td>
+                            {{ aplicacao.data_liberacao }}
+                        </td>
+
+                        <td>
+
+                            {% if aplicacao.status == "liberada" %}
+
+                            <span class="status liberada">
+                                ✓ Liberada
+                            </span>
+
+                            {% else %}
+
+                            <span class="status aguardando">
+                                ⚠ Aguardando
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="vazio">
+
+            <span>📋</span>
+
+            <h3>
+                Nenhuma aplicação encontrada
+            </h3>
+
+            <p>
+                Registre sua primeira aplicação.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        🌱 AgroControl • Gestão agrícola inteligente
+    </p>
+
+</footer>
+
+</body>
+
+</html>

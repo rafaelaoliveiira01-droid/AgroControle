@@ -1,26 +1,239 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroControle</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>AgroControl 🌱</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-    <header>
-        <h1>AgroControle</h1>
-        <p>Controle de Estoque de Defensivos e Rastreabilidade Ambiental</p>
-    </header>
+<header>
 
-    <main>
-        <h2>Menu principal</h2>
+    <div class="logo">
+        🌱 AgroControl
+    </div>
+<nav>
 
-        <a href="/cadastro">Cadastro de Defensivos</a>
-        <a href="/estoque">Controle de Estoque</a>
-        <a href="/rastreabilidade">Rastreabilidade Ambiental</a>
-    </main>
+    <a href="/" class="ativo">
+        Início
+    </a>
+
+    <a href="/cadastro">
+        Nova Aplicação
+    </a>
+
+    <a href="/aplicacoes">
+        Aplicações
+    </a>
+
+    <a href="/estoque">
+        Estoque
+    </a>
+
+    <a href="/rastreabilidade">
+        Rastreabilidade
+    </a>
+</nav>
+
+</header>
+
+
+<main>
+
+    <section class="hero">
+
+        <div>
+            <span class="tag">GESTÃO RURAL</span>
+
+            <h1>
+                Controle de<br>
+                <strong>Defensivos Agrícolas</strong> 🌾
+            </h1>
+
+            <p>
+                Acompanhe suas aplicações, controle o estoque
+                e saiba quando a colheita estará liberada.
+            </p>
+
+            <a href="/cadastro" class="botao">
+                + Registrar aplicação
+            </a>
+        </div>
+
+        <div class="hero-icon">
+            🌾
+        </div>
+
+    </section>
+
+
+    <section class="cards">
+
+        <div class="card">
+
+            <div class="icone verde">
+                🧪
+            </div>
+
+            <div>
+                <h3>Defensivos</h3>
+                <p>Controle dos produtos disponíveis</p>
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="icone amarelo">
+                ⏳
+            </div>
+
+            <div>
+                <h3>Período de carência</h3>
+                <p>Acompanhamento da liberação</p>
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="icone azul">
+                📦
+            </div>
+
+            <div>
+                <h3>Estoque</h3>
+                <p>Controle automático das quantidades</p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="secao">
+
+        <div class="titulo-secao">
+
+            <div>
+                <span class="tag">MONITORAMENTO</span>
+                <h2>Últimas aplicações</h2>
+            </div>
+
+            <a href="/aplicacoes">
+                Ver todas →
+            </a>
+
+        </div>
+
+
+        {% if aplicacoes %}
+
+        <div class="tabela-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Defensivo</th>
+                        <th>Talhão</th>
+                        <th>Aplicação</th>
+                        <th>Liberação</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for aplicacao in aplicacoes %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ aplicacao.defensivo }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            🌱 {{ aplicacao.talhao }}
+                        </td>
+
+                        <td>
+                            {{ aplicacao.data_aplicacao }}
+                        </td>
+
+                        <td>
+                            {{ aplicacao.data_liberacao }}
+                        </td>
+
+                        <td>
+
+                            {% if aplicacao.status == "liberada" %}
+
+                            <span class="status liberada">
+                                ✓ Colheita liberada
+                            </span>
+
+                            {% else %}
+
+                            <span class="status aguardando">
+                                ⚠ Carência em andamento
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="vazio">
+
+            <span>🌱</span>
+
+            <h3>Nenhuma aplicação registrada</h3>
+
+            <p>
+                Comece registrando uma aplicação de defensivo.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        🌱 AgroControl • Sistema de gestão agrícola
+    </p>
+
+</footer>
 
 </body>
+
 </html>

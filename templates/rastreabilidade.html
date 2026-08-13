@@ -3,33 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rastreabilidade Ambiental</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>Rastreabilidade Ambiental - AgroControle</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
     <h1>Rastreabilidade Ambiental</h1>
 
-    <form>
+    <h2>Registro de Aplicação de Defensivo</h2>
 
-        <label>Defensivo utilizado:</label>
-        <input type="text" name="defensivo" required>
+    <form method="POST" action="/rastreabilidade">
 
-        <label>Data da aplicação:</label>
-        <input type="date" name="data" required>
+        <label for="defensivo">
+            Defensivo utilizado:
+        </label>
 
-        <label>Local da aplicação:</label>
-        <input type="text" name="local" required>
+        <input
+            type="text"
+            id="defensivo"
+            name="defensivo"
+            required
+        >
 
-        <label>Quantidade utilizada:</label>
-        <input type="number" name="quantidade" required>
+        <label for="data_aplicacao">
+            Data da aplicação:
+        </label>
 
-        <button type="submit">Registrar aplicação</button>
+        <input
+            type="date"
+            id="data_aplicacao"
+            name="data_aplicacao"
+            required
+        >
+
+        <label for="carencia">
+            Período de carência (dias):
+        </label>
+
+        <input
+            type="number"
+            id="carencia"
+            name="carencia"
+            min="0"
+            required
+        >
+
+        <button type="submit">
+            Verificar período de carência
+        </button>
 
     </form>
 
-    <a href="/">Voltar</a>
+    {% if resultado %}
+
+        <div class="resultado">
+
+            <h2>Resultado da análise</h2>
+
+            <p>
+                <strong>Defensivo:</strong>
+                {{ resultado.defensivo }}
+            </p>
+
+            <p>
+                <strong>Data da aplicação:</strong>
+                {{ resultado.data_aplicacao }}
+            </p>
+
+            <p>
+                <strong>Período de carência:</strong>
+                {{ resultado.carencia }} dias
+            </p>
+
+            <p>
+                <strong>Término da carência:</strong>
+                {{ resultado.data_fim }}
+            </p>
+
+            {% if resultado.liberada %}
+
+                <div class="sucesso">
+                    ✅ {{ resultado.mensagem }}
+                </div>
+
+            {% else %}
+
+                <div class="alerta">
+                    ⚠️ {{ resultado.mensagem }}
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+    <a href="/">Voltar ao início</a>
 
 </body>
 </html>

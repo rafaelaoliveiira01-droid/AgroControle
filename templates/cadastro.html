@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Defensivo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <h1>Cadastro de Defensivo</h1>
+
+    <form>
+
+        <label>Nome do defensivo:</label>
+        <input type="text" name="nome" required>
+
+        <label>Categoria:</label>
+        <input type="text" name="categoria" required>
+
+        <label>Quantidade:</label>
+        <input type="number" name="quantidade" required>
+
+        <label>Unidade:</label>
+        <input type="text" name="unidade" required>
+
+        <label>Data de validade:</label>
+        <input type="date" name="validade" required>
+
+        <button type="submit">Cadastrar</button>
+
+    </form>
+
+    <a href="/">Voltar</a>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreabilidade Ambiental</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <h1>Rastreabilidade Ambiental</h1>
+
+    <form>
+
+        <label>Defensivo utilizado:</label>
+        <input type="text" name="defensivo" required>
+
+        <label>Data da aplicação:</label>
+        <input type="date" name="data" required>
+
+        <label>Local da aplicação:</label>
+        <input type="text" name="local" required>
+
+        <label>Quantidade utilizada:</label>
+        <input type="number" name="quantidade" required>
+
+        <button type="submit">Registrar aplicação</button>
+
+    </form>
+
+    <a href="/">Voltar</a>
+
+</body>
+</html>

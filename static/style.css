@@ -246,6 +246,25 @@ tr:hover {
     color: #7b2929;
 }
 
+.resultado {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.alerta {
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+}
+
+.sucesso {
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+}
+
 /* =========================
    RODAPÉ
 ========================= */

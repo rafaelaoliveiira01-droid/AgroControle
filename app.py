@@ -321,7 +321,7 @@ def rastreabilidade():
         "rastreabilidade.html",
         aplicacoes=lista
     )
-    
+
 @app.route("/aplicacoes")
 def aplicacoes():
 

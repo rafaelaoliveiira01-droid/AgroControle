@@ -374,6 +374,56 @@ def aplicacoes():
         aplicacoes=lista
     )
 
+@app.route("/cadastro-produto", methods=["GET", "POST"])
+def cadastro_produto():
+
+    conexao = conectar_banco()
+
+    if request.method == "POST":
+
+        nome = request.form["nome"].strip()
+        estoque = float(request.form["estoque"])
+        carencia = int(request.form["carencia"])
+
+        if not nome:
+            flash("Informe o nome do produto!", "erro")
+            conexao.close()
+            return redirect(url_for("cadastro_produto"))
+
+        if estoque < 0:
+            flash("O estoque não pode ser negativo!", "erro")
+            conexao.close()
+            return redirect(url_for("cadastro_produto"))
+
+        if carencia < 0:
+            flash("O período de carência não pode ser negativo!", "erro")
+            conexao.close()
+            return redirect(url_for("cadastro_produto"))
+
+        conexao.execute("""
+            INSERT INTO defensivos
+            (nome, carencia, estoque)
+            VALUES (?, ?, ?)
+        """, (
+            nome,
+            carencia,
+            estoque
+        ))
+
+        conexao.commit()
+        conexao.close()
+
+        flash(
+            "Produto cadastrado com sucesso! 🌱",
+            "sucesso"
+        )
+
+        return redirect(url_for("estoque"))
+
+    conexao.close()
+
+    return render_template("cadastro_produto.html")
+
 
 # ==========================
 # INICIAR SISTEMA

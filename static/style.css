@@ -730,6 +730,46 @@ footer {
 
 }
 
+/* ==========================
+   BOTÕES DO FORMULÁRIO
+   ========================== */
+
+.botoes-formulario {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+
+.botao-secundario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 13px 22px;
+
+    background: #eef3ec;
+    color: #45614b;
+
+    border-radius: 12px;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+}
+
+
+.botao-secundario:hover {
+    background: #e0e9dd;
+}
+
+
+.botoes-formulario .botao {
+    flex: 1;
+}
+
 
 @media (max-width: 600px) {
 

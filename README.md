@@ -16,6 +16,8 @@ Facilitar o controle do estoque, evitar perdas, registrar entradas e saídas e a
 
 ![Container](img/container.png)
 
+### Fluxograma
+![Fluxograma](img/fluxograma.png)
 
 ## Equipe
 Maria Eduarda Santos Coelho;

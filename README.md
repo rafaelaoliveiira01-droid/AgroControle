@@ -10,11 +10,11 @@ Facilitar o controle do estoque, evitar perdas, registrar entradas e saídas e a
 
 ### C4 - Nível 1 (Contexto)
 
-![Contexto](contexto.png)
+![Contexto](img/contexto.png)
 
 ### C4 - Nível 2 (Contêiner)
 
-![Container](container.png)
+![Container](img/container.png)
 
 
 ## Equipe

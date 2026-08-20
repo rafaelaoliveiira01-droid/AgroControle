@@ -1,0 +1,185 @@
+@startuml
+
+title Fluxograma Geral do AgroControl
+
+start
+
+:Iniciar sistema;
+
+:Conectar ao banco de dados SQLite;
+
+if (Banco de dados existe?) then (Não)
+    :Criar banco de dados;
+    :Criar tabela Defensivos;
+    :Criar tabela Talhões;
+    :Criar tabela Aplicações;
+else (Sim)
+    :Verificar estrutura das tabelas;
+    :Adicionar novas colunas se necessário;
+endif
+
+:Exibir sistema AgroControl;
+
+partition "Cadastro de Defensivo" {
+
+    :Informar nome;
+    :Informar categoria;
+    :Informar fabricante;
+    :Informar quantidade;
+    :Informar unidade de medida;
+    :Informar validade;
+    :Informar período de carência;
+
+    if (Todos os campos obrigatórios preenchidos?) then (Não)
+
+        :Exibir mensagem de erro;
+        :Solicitar preenchimento dos campos;
+
+    else (Sim)
+
+        if (Quantidade é maior que zero?) then (Não)
+
+            :Exibir quantidade inválida;
+            :Solicitar nova quantidade;
+
+        else (Sim)
+
+            :Salvar defensivo no banco de dados;
+            :Adicionar quantidade ao estoque;
+            :Exibir confirmação de cadastro;
+
+        endif
+
+    endif
+}
+
+
+partition "Controle de Estoque" {
+
+    :Consultar defensivos cadastrados;
+
+    :Exibir nome;
+    :Exibir categoria;
+    :Exibir fabricante;
+    :Exibir quantidade;
+    :Exibir unidade;
+    :Exibir validade;
+    :Exibir carência;
+
+    if (Produto está vencido?) then (Sim)
+
+        :Exibir alerta de produto vencido;
+
+    else (Não)
+
+        if (Produto vence em até 30 dias?) then (Sim)
+
+            :Exibir alerta de proximidade do vencimento;
+
+        else (Não)
+
+            :Manter produto como válido;
+
+        endif
+
+    endif
+}
+
+
+partition "Registro de Aplicação" {
+
+    :Selecionar defensivo;
+    :Selecionar talhão;
+    :Informar data da aplicação;
+    :Informar quantidade utilizada;
+    :Informar responsável;
+
+    :Consultar estoque disponível;
+
+    if (Defensivo encontrado?) then (Não)
+
+        :Exibir erro;
+        stop
+
+    else (Sim)
+
+        if (Quantidade maior que zero?) then (Não)
+
+            :Exibir quantidade inválida;
+            stop
+
+        else (Sim)
+
+            if (Quantidade disponível no estoque?) then (Não)
+
+                :Bloquear aplicação;
+                :Exibir estoque insuficiente;
+                stop
+
+            else (Sim)
+
+                :Registrar aplicação no banco;
+
+                :Descontar quantidade utilizada
+                do estoque;
+
+                :Atualizar estoque;
+
+            endif
+
+        endif
+
+    endif
+}
+
+
+partition "Controle de Carência" {
+
+    :Consultar período de carência do defensivo;
+
+    :Data de liberação =
+    data da aplicação + período de carência;
+
+    if (Período de carência terminou?) then (Não)
+
+        :Exibir alerta;
+        :Colheita ainda não liberada;
+
+    else (Sim)
+
+        :Informar que a colheita está liberada;
+
+    endif
+}
+
+
+partition "Rastreabilidade" {
+
+    :Consultar aplicações registradas;
+
+    :Relacionar defensivo;
+    :Relacionar talhão;
+    :Relacionar data da aplicação;
+    :Relacionar quantidade utilizada;
+    :Relacionar responsável;
+    :Relacionar data de liberação;
+
+    :Exibir histórico da aplicação;
+
+}
+
+
+partition "Acompanhamento" {
+
+    :Consultar estoque;
+    :Consultar aplicações;
+    :Consultar carência;
+    :Consultar rastreabilidade;
+
+    :Exibir informações ao produtor e operador agrícola;
+
+}
+
+stop
+
+@enduml

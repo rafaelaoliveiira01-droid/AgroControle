@@ -828,30 +828,4 @@ footer {
 .botoes-formulario .botao {
     flex: 1;
 }
-/* ==========================
-   INFORMAÇÕES DO PRODUTO
-   ========================== */
-
-.estoque-info {
-    grid-template-columns: 1fr 1fr;
-}
-
-
-.estoque-info div {
-    margin-bottom: 2px;
-}
-
-
-.estoque-info strong {
-    display: block;
-    font-size: 13px;
-}
-
-
-.campo small {
-    display: block;
-    margin-top: 7px;
-    color: #7b877d;
-    font-size: 12px;
-}
 }

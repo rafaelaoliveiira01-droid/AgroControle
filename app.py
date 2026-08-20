@@ -1186,18 +1186,6 @@ def aplicacoes():
 
 
 # ==========================================
-# FLUXOGRAMA
-# ==========================================
-
-@app.route("/fluxograma")
-def fluxograma():
-
-    return render_template(
-        "fluxograma.html"
-    )
-
-
-# ==========================================
 # INICIAR SISTEMA
 # ==========================================
 

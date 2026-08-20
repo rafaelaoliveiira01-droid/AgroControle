@@ -1,23 +1,60 @@
-# AgroControle: Defensivos e Rastreabilidade Ambiental
+# 🌱 AgroControle: Defensivos e Rastreabilidade Ambiental
 
-## Descrição
-Sistema desenvolvido para controlar o estoque de defensivos agrícolas e realizar a rastreabilidade dos produtos utilizados.
+## 🌐 Aplicação Online
 
-## Objetivo
-Facilitar o controle do estoque, evitar perdas, registrar entradas e saídas e acompanhar a utilização dos defensivos.
+....
 
-## Arquitetura do Sistema
+## 📖 Sobre o projeto
+
+O AgroControl é uma aplicação web desenvolvida para auxiliar
+o produtor rural no gerenciamento de defensivos agrícolas,
+controle de estoque, registro de aplicações, rastreabilidade
+e acompanhamento do período de carência.
+
+## 🎯 Objetivo
+
+Auxiliar o produtor rural no controle dos defensivos utilizados
+na propriedade, reduzindo perdas e facilitando o acompanhamento
+das aplicações e da liberação da colheita.
+
+## 🌾 Funcionalidades
+
+- Cadastro de defensivos;
+- Controle de estoque;
+- Registro de aplicações;
+- Desconto automático do estoque;
+- Rastreabilidade;
+- Controle do período de carência;
+- Verificação da liberação da colheita;
+- Fluxograma do processo do Agro.
+
+## 👥 Equipe
+
+- Maria Eduarda dos S. Celho — @scmadu
+- Mariana V. Schmitt — @marianavschmitt-star
+- Rafaela R. S. Oliveira — @rafaelaoliveiira01-droid
+
+## 👩‍🏫 Orientadora
+
+Profa. Eudoxia Moura
+
+## 🏫 Instituição
+
+Intituto Federal de Rôndonia - Campus Ariquemes
+
+## Arquitetura do Sistema !
+
+### Banco de Dados
+![BancoDB](img/banco.png)
 
 ### C4 - Nível 1 (Contexto)
 
-![Contexto](contexto.png)
+![Contexto](img/contexto.png)
 
 ### C4 - Nível 2 (Contêiner)
 
-![Container](container.png)
+![Container](img/container.png)
 
+### Fluxograma
+![Fluxograma](img/fluxograma.png)
 
-## Equipe
-Maria Eduarda Santos Coelho;
-Mariana Vieira Schmitt;
-Rafaela Ramos Santos de Oliveira;

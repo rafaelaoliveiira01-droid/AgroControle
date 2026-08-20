@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Cadastrar Produto | AgroControl</title>
+    <title>Cadastrar Defensivo | AgroControl</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -59,15 +59,16 @@
             <div>
 
                 <span class="tag">
-                    ESTOQUE
+                    CADASTRO DE DEFENSIVO
                 </span>
 
                 <h1>
-                    Cadastrar produto 📦
+                    Cadastrar defensivo 🧪
                 </h1>
 
                 <p>
-                    Adicione um novo defensivo ao estoque.
+                    Cadastre os produtos produzidos na propriedade
+                    e mantenha o controle do estoque.
                 </p>
 
             </div>
@@ -99,33 +100,101 @@
             class="formulario"
         >
 
+            <!-- NOME -->
+
             <div class="campo">
 
                 <label>
-                    🧪 Nome do produto
+                    🧪 Nome do defensivo *
                 </label>
 
                 <input
                     type="text"
                     name="nome"
-                    placeholder="Ex.: Defensivo Agrícola Plus"
+                    placeholder="Ex.: Defensivo Campo Verde"
                     required
                 >
 
             </div>
 
 
+            <!-- CATEGORIA -->
+
+            <div class="campo">
+
+                <label>
+                    🏷️ Categoria *
+                </label>
+
+                <select
+                    name="categoria"
+                    required
+                >
+
+                    <option value="">
+                        Selecione uma categoria
+                    </option>
+
+                    <option value="Herbicida">
+                        Herbicida
+                    </option>
+
+                    <option value="Inseticida">
+                        Inseticida
+                    </option>
+
+                    <option value="Fungicida">
+                        Fungicida
+                    </option>
+
+                    <option value="Acaricida">
+                        Acaricida
+                    </option>
+
+                    <option value="Fertilizante">
+                        Fertilizante
+                    </option>
+
+                    <option value="Outro">
+                        Outro
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- FABRICANTE -->
+
+            <div class="campo">
+
+                <label>
+                    🏭 Fabricante *
+                </label>
+
+                <input
+                    type="text"
+                    name="fabricante"
+                    placeholder="Ex.: AgroForte"
+                    required
+                >
+
+            </div>
+
+
+            <!-- QUANTIDADE E UNIDADE -->
+
             <div class="linha">
 
                 <div class="campo">
 
                     <label>
-                        📦 Estoque inicial (L)
+                        📦 Quantidade *
                     </label>
 
                     <input
                         type="number"
-                        name="estoque"
+                        name="quantidade"
                         step="0.01"
                         min="0"
                         placeholder="Ex.: 100"
@@ -138,18 +207,78 @@
                 <div class="campo">
 
                     <label>
-                        ⏳ Período de carência (dias)
+                        📏 Unidade de medida *
                     </label>
 
-                    <input
-                        type="number"
-                        name="carencia"
-                        min="0"
-                        placeholder="Ex.: 14"
+                    <select
+                        name="unidade"
                         required
                     >
 
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        <option value="Litros">
+                            Litros (L)
+                        </option>
+
+                        <option value="Quilogramas">
+                            Quilogramas (kg)
+                        </option>
+
+                        <option value="Gramas">
+                            Gramas (g)
+                        </option>
+
+                        <option value="Mililitros">
+                            Mililitros (mL)
+                        </option>
+
+                    </select>
+
                 </div>
+
+            </div>
+
+
+            <!-- VALIDADE -->
+
+            <div class="campo">
+
+                <label>
+                    📅 Data de validade *
+                </label>
+
+                <input
+                    type="date"
+                    name="validade"
+                    required
+                >
+
+            </div>
+
+
+            <!-- CARÊNCIA -->
+
+            <div class="campo">
+
+                <label>
+                    ⏳ Período de carência
+                </label>
+
+                <input
+                    type="number"
+                    name="carencia"
+                    min="0"
+                    value="0"
+                    placeholder="Ex.: 14"
+                >
+
+                <small>
+                    Quantidade de dias que deve ser respeitada
+                    antes da colheita.
+                </small>
 
             </div>
 
@@ -159,9 +288,12 @@
                 <span>💡</span>
 
                 <p>
-                    O período de carência informado será utilizado
-                    automaticamente para calcular a data em que a
-                    colheita estará liberada após uma aplicação.
+
+                    Os campos marcados com <strong>*</strong>
+                    são obrigatórios. Os dados serão salvos
+                    no banco de dados e o produto aparecerá
+                    automaticamente no estoque.
+
                 </p>
 
             </div>
@@ -180,7 +312,7 @@
                     type="submit"
                     class="botao"
                 >
-                    ✓ Cadastrar produto
+                    ✓ Cadastrar defensivo
                 </button>
 
             </div>

@@ -7,74 +7,70 @@
 
     <title>Estoque | AgroControl</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<header>
+    <header>
 
-    <div class="logo">
-        🌱 AgroControl
-    </div>
+        <div class="logo">
+            🌱 AgroControl
+        </div>
 
-    <nav>
-        <a href="/">Início</a>
-        <a href="/cadastro">Nova Aplicação</a>
-        <a href="/aplicacoes">Aplicações</a>
-        <a href="/estoque" class="ativo">Estoque</a>
-        <a href="/rastreabilidade">Rastreabilidade</a>
-    </nav>
+        <nav>
+            <a href="/">Início</a>
+            <a href="/cadastro">Nova Aplicação</a>
+            <a href="/aplicacoes">Aplicações</a>
+            <a href="/estoque" class="ativo">Estoque</a>
+            <a href="/rastreabilidade">Rastreabilidade</a>
+        </nav>
 
-</header>
-
-
-<main>
-
-    <section class="secao">
-
-        <div class="titulo-secao">
-
-    <div>
-
-        <span class="tag">
-            CONTROLE DE ESTOQUE
-        </span>
-
-        <h1>
-            Estoque de defensivos 📦
-        </h1>
-
-        <p>
-            Acompanhe a quantidade disponível de cada produto.
-        </p>
-
-    </div>
-
-    <a
-        href="/cadastro-produto"
-        class="botao"
-    >
-        + Cadastrar produto
-    </a>
-
-</div>
+    </header>
 
 
-        <div class="estoque-grid">
+    <main>
 
-            {% for defensivo in defensivos %}
+        <section class="secao">
 
-            <div class="estoque-card">
+            <div class="titulo-secao">
 
-                <div class="estoque-topo">
+                <div>
 
-                    <div class="produto-icone">
-                        🧪
-                    </div>
+                    <span class="tag">
+                        CONTROLE DE ESTOQUE
+                    </span>
 
-                    <span class="
+                    <h1>
+                        Estoque de defensivos 📦
+                    </h1>
+
+                    <p>
+                        Acompanhe a quantidade disponível de cada produto.
+                    </p>
+
+                </div>
+
+                <a href="/cadastro-produto" class="botao">
+                    + Cadastrar produto
+                </a>
+
+            </div>
+
+
+            <div class="estoque-grid">
+
+                {% for defensivo in defensivos %}
+
+                <div class="estoque-card">
+
+                    <div class="estoque-topo">
+
+                        <div class="produto-icone">
+                            🧪
+                        </div>
+
+                        <span class="
                         {% if defensivo.estoque <= 20 %}
                             estoque-baixo
                         {% else %}
@@ -82,93 +78,121 @@
                         {% endif %}
                     ">
 
-                        {% if defensivo.estoque <= 20 %}
-                            Estoque baixo
-                        {% else %}
-                            Disponível
+                            {% if defensivo.estoque <= 20 %} Estoque baixo {% else %} Disponível {% endif %} </span>
+
+                    </div>
+
+
+                    <h2>
+                        {{ defensivo.nome }}
+                    </h2>
+
+
+                    <div class="estoque-info">
+
+                        <div>
+
+                            <span>Quantidade</span>
+
+                            <strong>
+                                {{ "%.2f"|format(defensivo.estoque) }}
+                                {{ defensivo.unidade or "L" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>Categoria</span>
+
+                            <strong>
+                                {{ defensivo.categoria or "Não informado" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>Fabricante</span>
+
+                            <strong>
+                                {{ defensivo.fabricante or "Não informado" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>Validade</span>
+
+                            <strong>
+                                {{ defensivo.validade or "Não informado" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>Carência</span>
+
+                            <strong>
+                                {{ defensivo.carencia }} dias
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="barra-fundo">
+
+                        {% set percentual =
+                        (defensivo.estoque / 120 * 100)
+                        %}
+
+                        {% if percentual > 100 %}
+                        {% set percentual = 100 %}
                         {% endif %}
 
-                    </span>
+                        <div class="barra-estoque" style="width: {{ percentual }}%;">
+                        </div>
 
-                </div>
-
-
-                <h2>
-                    {{ defensivo.nome }}
-                </h2>
-
-
-                <div class="estoque-info">
-
-                    <div>
-                        <span>Quantidade disponível</span>
-
-                        <strong>
-                            {{ "%.2f"|format(defensivo.estoque) }} L
-                        </strong>
                     </div>
 
-                    <div>
-                        <span>Período de carência</span>
 
-                        <strong>
-                            {{ defensivo.carencia }} dias
-                        </strong>
-                    </div>
-
-                </div>
-
-
-                <div class="barra-fundo">
-
-                    {% set percentual =
-                        (defensivo.estoque / 120 * 100)
-                    %}
-
-                    {% if percentual > 100 %}
-                        {% set percentual = 100 %}
-                    {% endif %}
-
-                    <div
-                        class="barra-estoque"
-                        style="width: {{ percentual }}%;">
-                    </div>
-
-                </div>
-
-
-                {% if defensivo.estoque <= 20 %}
-
-                    <p class="aviso-estoque">
+                    {% if defensivo.estoque <= 20 %} <p class="aviso-estoque">
                         ⚠ Atenção: estoque baixo.
-                    </p>
+                        </p>
 
-                {% else %}
+                        {% else %}
 
-                    <p class="estoque-ok">
-                        ✓ Estoque em quantidade adequada.
-                    </p>
+                        <p class="estoque-ok">
+                            ✓ Estoque em quantidade adequada.
+                        </p>
 
-                {% endif %}
+                        {% endif %}
+
+                </div>
+
+                {% endfor %}
 
             </div>
 
-            {% endfor %}
+        </section>
 
-        </div>
-
-    </section>
-
-</main>
+    </main>
 
 
-<footer>
+    <footer>
 
-    <p>
-        🌱 AgroControl • Gestão agrícola inteligente
-    </p>
+        <p>
+            🌱 AgroControl • Gestão agrícola inteligente
+        </p>
 
-</footer>
+    </footer>
 
 </body>
 

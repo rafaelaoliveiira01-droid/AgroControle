@@ -8,6 +8,9 @@ Facilitar o controle do estoque, evitar perdas, registrar entradas e saídas e a
 
 ## Arquitetura do Sistema
 
+### Banco de Dados
+![BancoDB](img/banco.png)
+
 ### C4 - Nível 1 (Contexto)
 
 ![Contexto](img/contexto.png)

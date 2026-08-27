@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastrar Produto | AgroControl</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🌱 AgroControl
+    </div>
+
+    <nav>
+
+        <a href="/">
+            Início
+        </a>
+
+        <a href="/cadastro">
+            Nova Aplicação
+        </a>
+
+        <a href="/aplicacoes">
+            Aplicações
+        </a>
+
+        <a href="/estoque" class="ativo">
+            Estoque
+        </a>
+
+        <a href="/rastreabilidade">
+            Rastreabilidade
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <section class="formulario-area">
+
+        <div class="titulo-secao">
+
+            <div>
+
+                <span class="tag">
+                    ESTOQUE
+                </span>
+
+                <h1>
+                    Cadastrar produto 📦
+                </h1>
+
+                <p>
+                    Adicione um novo defensivo ao estoque.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% with mensagens =
+            get_flashed_messages(with_categories=true)
+        %}
+
+            {% if mensagens %}
+
+                {% for categoria, mensagem in mensagens %}
+
+                    <div class="alerta {{ categoria }}">
+                        {{ mensagem }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <form
+            method="POST"
+            class="formulario"
+        >
+
+            <div class="campo">
+
+                <label>
+                    🧪 Nome do produto
+                </label>
+
+                <input
+                    type="text"
+                    name="nome"
+                    placeholder="Ex.: Defensivo Agrícola Plus"
+                    required
+                >
+
+            </div>
+
+
+            <div class="linha">
+
+                <div class="campo">
+
+                    <label>
+                        📦 Estoque inicial (L)
+                    </label>
+
+                    <input
+                        type="number"
+                        name="estoque"
+                        step="0.01"
+                        min="0"
+                        placeholder="Ex.: 100"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        ⏳ Período de carência (dias)
+                    </label>
+
+                    <input
+                        type="number"
+                        name="carencia"
+                        min="0"
+                        placeholder="Ex.: 14"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="info">
+
+                <span>💡</span>
+
+                <p>
+                    O período de carência informado será utilizado
+                    automaticamente para calcular a data em que a
+                    colheita estará liberada após uma aplicação.
+                </p>
+
+            </div>
+
+
+            <div class="botoes-formulario">
+
+                <a
+                    href="/estoque"
+                    class="botao-secundario"
+                >
+                    ← Voltar
+                </a>
+
+                <button
+                    type="submit"
+                    class="botao"
+                >
+                    ✓ Cadastrar produto
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        🌱 AgroControl • Gestão agrícola inteligente
+    </p>
+
+</footer>
+
+</body>
+
+</html>

@@ -1,26 +1,45 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>AgroControle</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
 <body>
 
-    <header>
-        <h1>AgroControle</h1>
-        <p>Controle de Estoque de Defensivos e Rastreabilidade Ambiental</p>
-    </header>
+    <h1>AgroControle</h1>
 
-    <main>
-        <h2>Menu principal</h2>
+    <h2>Defensivos e Rastreabilidade Ambiental</h2>
 
-        <a href="/cadastro">Cadastro de Defensivos</a>
-        <a href="/estoque">Controle de Estoque</a>
-        <a href="/rastreabilidade">Rastreabilidade Ambiental</a>
-    </main>
+    <p>
+        Sistema para controle de estoque de defensivos
+        agrícolas e rastreabilidade das aplicações.
+    </p>
+
+    <hr>
+
+    <h2>Registro de aplicação</h2>
+
+    <p>
+        Registre a aplicação de defensivos nos talhões,
+        acompanhe o estoque e controle o período de carência.
+    </p>
+
+    <a href="{{ url_for('rastreabilidade') }}">
+        <button>
+            Registrar aplicação de defensivo
+        </button>
+    </a>
 
 </body>
+
 </html>

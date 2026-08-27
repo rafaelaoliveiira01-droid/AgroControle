@@ -2,7 +2,7 @@
 
 ## 🌐 Aplicação Online
 
-....
+https://rafaelaoliveiira0101.pythonanywhere.com/
 
 ## 📖 Sobre o projeto
 

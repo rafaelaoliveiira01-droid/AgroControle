@@ -89,8 +89,16 @@ partition "Controle de Estoque" {
 partition "Registro de Aplicação" {
 
     :Selecionar defensivo;
-    :Selecionar talhão;
-    :Informar data da aplicação;
+:Selecionar talhão;
+:Informar data da aplicação;
+
+if (Data da aplicação é válida?) then (Não)
+
+    :Exibir data inválida;
+    :Solicitar nova data;
+
+else (Sim)
+
     :Informar quantidade utilizada;
     :Informar responsável;
 
@@ -130,6 +138,8 @@ partition "Registro de Aplicação" {
         endif
 
     endif
+
+endif
 }
 
 

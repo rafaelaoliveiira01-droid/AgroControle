@@ -1,38 +1,227 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Defensivo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>Nova Aplicação | AgroControl</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
 <body>
 
-    <h1>Cadastro de Defensivo</h1>
+<header>
 
-    <form>
+    <div class="logo">
+        🌱 AgroControl
+    </div>
 
-        <label>Nome do defensivo:</label>
-        <input type="text" name="nome" required>
+    <nav>
 
-        <label>Categoria:</label>
-        <input type="text" name="categoria" required>
+        <a href="/">Início</a>
+        <a href="/cadastro" class="ativo">
+            Nova Aplicação
+        </a>
+        <a href="/aplicacoes">
+            Aplicações
+        </a>
 
-        <label>Quantidade:</label>
-        <input type="number" name="quantidade" required>
+    </nav>
 
-        <label>Unidade:</label>
-        <input type="text" name="unidade" required>
+</header>
 
-        <label>Data de validade:</label>
-        <input type="date" name="validade" required>
 
-        <button type="submit">Cadastrar</button>
+<main>
 
-    </form>
+    <section class="formulario-area">
 
-    <a href="/">Voltar</a>
+        <div class="titulo-secao">
+
+            <div>
+
+                <span class="tag">
+                    NOVO REGISTRO
+                </span>
+
+                <h1>
+                    Registrar aplicação 🧪
+                </h1>
+
+                <p>
+                    Preencha os dados da aplicação do defensivo.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+
+            {% if mensagens %}
+
+                {% for categoria, mensagem in mensagens %}
+
+                    <div class="alerta {{ categoria }}">
+                        {{ mensagem }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <form method="POST" class="formulario">
+
+            <div class="campo">
+
+                <label>
+                    🧪 Defensivo
+                </label>
+
+                <select name="defensivo_id" required>
+
+                    <option value="">
+                        Selecione o defensivo
+                    </option>
+
+                    {% for defensivo in defensivos %}
+
+                    <option value="{{ defensivo.id }}">
+
+                        {{ defensivo.nome }}
+                        — Estoque: {{ defensivo.estoque }} L
+                        — Carência: {{ defensivo.carencia }} dias
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label>
+                    🌱 Talhão
+                </label>
+
+                <select name="talhao_id" required>
+
+                    <option value="">
+                        Selecione o talhão
+                    </option>
+
+                    {% for talhao in talhoes %}
+
+                    <option value="{{ talhao.id }}">
+                        {{ talhao.nome }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="linha">
+
+                <div class="campo">
+
+                    <label>
+                        📅 Data da aplicação
+                    </label>
+
+                    <input
+                        type="date"
+                        name="data_aplicacao"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        📦 Quantidade utilizada (L)
+                    </label>
+
+                    <input
+                        type="number"
+                        name="quantidade"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="Ex.: 20"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label>
+                    👨‍🌾 Responsável pela aplicação
+                </label>
+
+                <input
+                    type="text"
+                    name="responsavel"
+                    placeholder="Nome do responsável"
+                    required
+                >
+
+            </div>
+
+
+            <div class="info">
+
+                <span>💡</span>
+
+                <p>
+                    Ao registrar a aplicação, o sistema irá
+                    calcular automaticamente o período de
+                    carência e descontar a quantidade utilizada
+                    do estoque.
+                </p>
+
+            </div>
+
+
+            <button type="submit" class="botao">
+
+                ✓ Registrar aplicação
+
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        🌱 AgroControl • Gestão agrícola inteligente
+    </p>
+
+</footer>
 
 </body>
+
 </html>

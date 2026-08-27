@@ -1,35 +1,215 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rastreabilidade Ambiental</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>Rastreabilidade | AgroControl</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
 <body>
 
-    <h1>Rastreabilidade Ambiental</h1>
+<header>
 
-    <form>
+    <div class="logo">
+        🌱 AgroControl
+    </div>
 
-        <label>Defensivo utilizado:</label>
-        <input type="text" name="defensivo" required>
+    <nav>
 
-        <label>Data da aplicação:</label>
-        <input type="date" name="data" required>
+        <a href="/">Início</a>
 
-        <label>Local da aplicação:</label>
-        <input type="text" name="local" required>
+        <a href="/cadastro">
+            Nova Aplicação
+        </a>
 
-        <label>Quantidade utilizada:</label>
-        <input type="number" name="quantidade" required>
+        <a href="/aplicacoes">
+            Aplicações
+        </a>
 
-        <button type="submit">Registrar aplicação</button>
+        <a href="/estoque">
+            Estoque
+        </a>
 
-    </form>
+        <a href="/rastreabilidade" class="ativo">
+            Rastreabilidade
+        </a>
 
-    <a href="/">Voltar</a>
+    </nav>
+
+</header>
+
+
+<main>
+
+    <section class="secao">
+
+        <div class="titulo-secao">
+
+            <div>
+
+                <span class="tag">
+                    RASTREABILIDADE
+                </span>
+
+                <h1>
+                    Histórico das aplicações 🌾
+                </h1>
+
+                <p>
+                    Consulte todas as aplicações realizadas
+                    nos talhões.
+                </p>
+
+            </div>
+
+            <a href="/cadastro" class="botao">
+                + Nova aplicação
+            </a>
+
+        </div>
+
+
+        {% if aplicacoes %}
+
+        <div class="rastreabilidade-lista">
+
+            {% for aplicacao in aplicacoes %}
+
+            <div class="rastreabilidade-card">
+
+                <div class="rastro-icon">
+                    🧪
+                </div>
+
+
+                <div class="rastro-conteudo">
+
+                    <div class="rastro-cabecalho">
+
+                        <div>
+
+                            <h2>
+                                {{ aplicacao.defensivo }}
+                            </h2>
+
+                            <span>
+                                🌱 {{ aplicacao.talhao }}
+                            </span>
+
+                        </div>
+
+
+                        {% if aplicacao.status == "liberada" %}
+
+                            <span class="status liberada">
+                                ✓ Colheita liberada
+                            </span>
+
+                        {% else %}
+
+                            <span class="status aguardando">
+                                ⚠ Carência em andamento
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="rastro-dados">
+
+                        <div>
+
+                            <span>📅 Data da aplicação</span>
+
+                            <strong>
+                                {{ aplicacao.data_aplicacao }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>📦 Quantidade utilizada</span>
+
+                            <strong>
+                                {{ "%.2f"|format(aplicacao.quantidade) }} L
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>👨‍🌾 Responsável</span>
+
+                            <strong>
+                                {{ aplicacao.responsavel }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>🔓 Liberação da colheita</span>
+
+                            <strong>
+                                {{ aplicacao.data_liberacao }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="vazio">
+
+            <span>🌱</span>
+
+            <h3>
+                Nenhuma aplicação registrada
+            </h3>
+
+            <p>
+                Quando uma aplicação for registrada,
+                ela aparecerá aqui.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        🌱 AgroControl • Gestão agrícola inteligente
+    </p>
+
+</footer>
 
 </body>
+
 </html>

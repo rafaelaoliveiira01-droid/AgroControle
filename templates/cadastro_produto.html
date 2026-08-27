@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastrar Defensivo | AgroControl</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🌱 AgroControl
+    </div>
+
+    <nav>
+
+        <a href="/">
+            Início
+        </a>
+
+        <a href="/cadastro">
+            Nova Aplicação
+        </a>
+
+        <a href="/aplicacoes">
+            Aplicações
+        </a>
+
+        <a href="/estoque" class="ativo">
+            Estoque
+        </a>
+
+        <a href="/rastreabilidade">
+            Rastreabilidade
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <section class="formulario-area">
+
+        <div class="titulo-secao">
+
+            <div>
+
+                <span class="tag">
+                    CADASTRO DE DEFENSIVO
+                </span>
+
+                <h1>
+                    Cadastrar defensivo 🧪
+                </h1>
+
+                <p>
+                    Cadastre os produtos produzidos na propriedade
+                    e mantenha o controle do estoque.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% with mensagens =
+            get_flashed_messages(with_categories=true)
+        %}
+
+            {% if mensagens %}
+
+                {% for categoria, mensagem in mensagens %}
+
+                    <div class="alerta {{ categoria }}">
+                        {{ mensagem }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <form
+            method="POST"
+            class="formulario"
+        >
+
+            <!-- NOME -->
+
+            <div class="campo">
+
+                <label>
+                    🧪 Nome do defensivo *
+                </label>
+
+                <input
+                    type="text"
+                    name="nome"
+                    placeholder="Ex.: Defensivo Campo Verde"
+                    required
+                >
+
+            </div>
+
+
+            <!-- CATEGORIA -->
+
+            <div class="campo">
+
+                <label>
+                    🏷️ Categoria *
+                </label>
+
+                <select
+                    name="categoria"
+                    required
+                >
+
+                    <option value="">
+                        Selecione uma categoria
+                    </option>
+
+                    <option value="Herbicida">
+                        Herbicida
+                    </option>
+
+                    <option value="Inseticida">
+                        Inseticida
+                    </option>
+
+                    <option value="Fungicida">
+                        Fungicida
+                    </option>
+
+                    <option value="Acaricida">
+                        Acaricida
+                    </option>
+
+                    <option value="Fertilizante">
+                        Fertilizante
+                    </option>
+
+                    <option value="Outro">
+                        Outro
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- FABRICANTE -->
+
+            <div class="campo">
+
+                <label>
+                    🏭 Fabricante *
+                </label>
+
+                <input
+                    type="text"
+                    name="fabricante"
+                    placeholder="Ex.: AgroForte"
+                    required
+                >
+
+            </div>
+
+
+            <!-- QUANTIDADE E UNIDADE -->
+
+            <div class="linha">
+
+                <div class="campo">
+
+                    <label>
+                        📦 Quantidade *
+                    </label>
+
+                    <input
+                        type="number"
+                        name="quantidade"
+                        step="0.01"
+                        min="0"
+                        placeholder="Ex.: 100"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        📏 Unidade de medida *
+                    </label>
+
+                    <select
+                        name="unidade"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        <option value="Litros">
+                            Litros (L)
+                        </option>
+
+                        <option value="Quilogramas">
+                            Quilogramas (kg)
+                        </option>
+
+                        <option value="Gramas">
+                            Gramas (g)
+                        </option>
+
+                        <option value="Mililitros">
+                            Mililitros (mL)
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- VALIDADE -->
+
+            <div class="campo">
+
+                <label>
+                    📅 Data de validade *
+                </label>
+
+                <input
+                    type="date"
+                    name="validade"
+                    required
+                >
+
+            </div>
+
+
+            <!-- CARÊNCIA -->
+
+            <div class="campo">
+
+                <label>
+                    ⏳ Período de carência
+                </label>
+
+                <input
+                    type="number"
+                    name="carencia"
+                    min="0"
+                    value="0"
+                    placeholder="Ex.: 14"
+                >
+
+                <small>
+                    Quantidade de dias que deve ser respeitada
+                    antes da colheita.
+                </small>
+
+            </div>
+
+
+            <div class="info">
+
+                <span>💡</span>
+
+                <p>
+
+                    Os campos marcados com <strong>*</strong>
+                    são obrigatórios. Os dados serão salvos
+                    no banco de dados e o produto aparecerá
+                    automaticamente no estoque.
+
+                </p>
+
+            </div>
+
+
+            <div class="botoes-formulario">
+
+                <a
+                    href="/estoque"
+                    class="botao-secundario"
+                >
+                    ← Voltar
+                </a>
+
+                <button
+                    type="submit"
+                    class="botao"
+                >
+                    ✓ Cadastrar defensivo
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        🌱 AgroControl • Gestão agrícola inteligente
+    </p>
+
+</footer>
+
+</body>
+
+</html>

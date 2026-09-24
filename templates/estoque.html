@@ -31,6 +31,32 @@
 
     <main>
 
+        <div class="botoes-formulario">
+
+    <a
+        href="{{ url_for('editar_defensivo', id=produto.id) }}"
+        class="botao-secundario"
+    >
+        ✏️ Editar
+    </a>
+
+    <form
+        method="POST"
+        action="{{ url_for('excluir_defensivo', id=produto.id) }}"
+        onsubmit="return confirm('Tem certeza que deseja excluir este defensivo?');"
+    >
+
+        <button
+            type="submit"
+            class="botao-secundario"
+        >
+             Excluir
+        </button>
+
+    </form>
+
+</div>
+
         <section class="secao">
 
             <div class="titulo-secao">

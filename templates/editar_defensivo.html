@@ -1,0 +1,208 @@
+<form
+    method="POST"
+    class="formulario"
+>
+
+    <div class="campo">
+
+        <label>
+            🧪 Nome do defensivo *
+        </label>
+
+        <input
+            type="text"
+            name="nome"
+            value="{{ defensivo.nome }}"
+            required
+        >
+
+    </div>
+
+
+    <div class="campo">
+
+        <label>
+            🏷️ Categoria *
+        </label>
+
+        <select
+            name="categoria"
+            required
+        >
+
+            <option value="">
+                Selecione uma categoria
+            </option>
+
+            <option value="Herbicida"
+                {% if defensivo.categoria == "Herbicida" %}selected{% endif %}>
+                Herbicida
+            </option>
+
+            <option value="Inseticida"
+                {% if defensivo.categoria == "Inseticida" %}selected{% endif %}>
+                Inseticida
+            </option>
+
+            <option value="Fungicida"
+                {% if defensivo.categoria == "Fungicida" %}selected{% endif %}>
+                Fungicida
+            </option>
+
+            <option value="Acaricida"
+                {% if defensivo.categoria == "Acaricida" %}selected{% endif %}>
+                Acaricida
+            </option>
+
+            <option value="Fertilizante"
+                {% if defensivo.categoria == "Fertilizante" %}selected{% endif %}>
+                Fertilizante
+            </option>
+
+            <option value="Outro"
+                {% if defensivo.categoria == "Outro" %}selected{% endif %}>
+                Outro
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <div class="campo">
+
+        <label>
+            🏭 Fabricante *
+        </label>
+
+        <input
+            type="text"
+            name="fabricante"
+            value="{{ defensivo.fabricante }}"
+            required
+        >
+
+    </div>
+
+
+    <div class="linha">
+
+        <div class="campo">
+
+            <label>
+                📦 Quantidade *
+            </label>
+
+            <input
+                type="number"
+                name="quantidade"
+                step="0.01"
+                min="0"
+                value="{{ defensivo.estoque }}"
+                required
+            >
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>
+                📏 Unidade de medida *
+            </label>
+
+            <select
+                name="unidade"
+                required
+            >
+
+                <option value="Litros"
+                    {% if defensivo.unidade == "Litros" %}selected{% endif %}>
+                    Litros (L)
+                </option>
+
+                <option value="Quilogramas"
+                    {% if defensivo.unidade == "Quilogramas" %}selected{% endif %}>
+                    Quilogramas (kg)
+                </option>
+
+                <option value="Gramas"
+                    {% if defensivo.unidade == "Gramas" %}selected{% endif %}>
+                    Gramas (g)
+                </option>
+
+                <option value="Mililitros"
+                    {% if defensivo.unidade == "Mililitros" %}selected{% endif %}>
+                    Mililitros (mL)
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <div class="campo">
+
+        <label>
+            📅 Data de validade *
+        </label>
+
+        <input
+            type="date"
+            name="validade"
+            value="{{ defensivo.validade }}"
+            required
+        >
+
+    </div>
+
+
+    <div class="campo">
+
+        <label>
+            ⏳ Período de carência
+        </label>
+
+        <input
+            type="number"
+            name="carencia"
+            min="0"
+            value="{{ defensivo.carencia }}"
+        >
+
+    </div>
+
+
+    <div class="info">
+
+        <span>💡</span>
+
+        <p>
+            Altere os dados do defensivo e clique em
+            "Salvar alterações".
+        </p>
+
+    </div>
+
+
+    <div class="botoes-formulario">
+
+        <a
+            href="/estoque"
+            class="botao-secundario"
+        >
+            ← Voltar
+        </a>
+
+        <button
+            type="submit"
+            class="botao"
+        >
+            ✓ Salvar alterações
+        </button>
+
+    </div>
+
+</form>

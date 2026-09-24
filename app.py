@@ -332,6 +332,160 @@ def index():
 
     )
 
+# ==========================================
+# EDITAR DEFENSIVO
+# ==========================================
+
+@app.route("/editar-defensivo/<int:id>", methods=["GET", "POST"])
+def editar_defensivo(id):
+
+    conexao = conectar_banco()
+
+    defensivo = conexao.execute("""
+        SELECT *
+        FROM defensivos
+        WHERE id = ?
+    """, (id,)).fetchone()
+
+    if defensivo is None:
+        conexao.close()
+        flash("Defensivo não encontrado!", "erro")
+        return redirect(url_for("estoque"))
+
+    if request.method == "POST":
+
+        nome = request.form.get("nome", "").strip()
+        categoria = request.form.get("categoria", "").strip()
+        fabricante = request.form.get("fabricante", "").strip()
+        quantidade = request.form.get("quantidade", "").strip()
+        unidade = request.form.get("unidade", "").strip()
+        validade = request.form.get("validade", "").strip()
+        carencia = request.form.get("carencia", "0").strip()
+
+        if not nome or not categoria or not fabricante or not quantidade or not unidade or not validade:
+            flash("Preencha todos os campos obrigatórios!", "erro")
+            conexao.close()
+            return redirect(url_for("editar_defensivo", id=id))
+
+        try:
+            quantidade = float(quantidade)
+
+            if quantidade < 0:
+                flash("A quantidade não pode ser negativa!", "erro")
+                conexao.close()
+                return redirect(url_for("editar_defensivo", id=id))
+
+        except ValueError:
+            flash("Informe uma quantidade válida!", "erro")
+            conexao.close()
+            return redirect(url_for("editar_defensivo", id=id))
+
+        try:
+            carencia = int(carencia)
+
+            if carencia < 0:
+                flash("A carência não pode ser negativa!", "erro")
+                conexao.close()
+                return redirect(url_for("editar_defensivo", id=id))
+
+        except ValueError:
+            flash("Informe uma carência válida!", "erro")
+            conexao.close()
+            return redirect(url_for("editar_defensivo", id=id))
+
+        try:
+            datetime.strptime(validade, "%Y-%m-%d").date()
+
+        except ValueError:
+            flash("Informe uma data de validade válida!", "erro")
+            conexao.close()
+            return redirect(url_for("editar_defensivo", id=id))
+
+        conexao.execute("""
+            UPDATE defensivos
+            SET
+                nome = ?,
+                categoria = ?,
+                fabricante = ?,
+                estoque = ?,
+                unidade = ?,
+                validade = ?,
+                carencia = ?
+            WHERE id = ?
+        """, (
+            nome,
+            categoria,
+            fabricante,
+            quantidade,
+            unidade,
+            validade,
+            carencia,
+            id
+        ))
+
+        conexao.commit()
+        conexao.close()
+
+        flash("Defensivo atualizado com sucesso! 🌱", "sucesso")
+
+        return redirect(url_for("estoque"))
+
+    conexao.close()
+
+    return render_template(
+        "editar_defensivo.html",
+        defensivo=defensivo
+    )
+
+
+# ==========================================
+# EXCLUIR DEFENSIVO
+# ==========================================
+
+@app.route("/excluir-defensivo/<int:id>", methods=["POST"])
+def excluir_defensivo(id):
+
+    conexao = conectar_banco()
+
+    defensivo = conexao.execute("""
+        SELECT *
+        FROM defensivos
+        WHERE id = ?
+    """, (id,)).fetchone()
+
+    if defensivo is None:
+        conexao.close()
+        flash("Defensivo não encontrado!", "erro")
+        return redirect(url_for("estoque"))
+
+    aplicacoes = conexao.execute("""
+        SELECT COUNT(*)
+        FROM aplicacoes
+        WHERE defensivo_id = ?
+    """, (id,)).fetchone()[0]
+
+    if aplicacoes > 0:
+        conexao.close()
+
+        flash(
+            "Não é possível excluir este defensivo porque existem aplicações registradas para ele!",
+            "erro"
+        )
+
+        return redirect(url_for("estoque"))
+
+    conexao.execute("""
+        DELETE FROM defensivos
+        WHERE id = ?
+    """, (id,))
+
+    conexao.commit()
+    conexao.close()
+
+    flash("Defensivo excluído com sucesso! 🗑️", "sucesso")
+
+    return redirect(url_for("estoque"))
+
 
 #==================
 # ROTA DASHBOARD

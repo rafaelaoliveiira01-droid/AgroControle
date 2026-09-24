@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Editar Aplicação - AgroControl</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Editar Aplicação</h1>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+
+            {% if mensagens %}
+
+                {% for categoria, mensagem in mensagens %}
+
+                    <div class="mensagem {{ categoria }}">
+                        {{ mensagem }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <form method="POST"
+              class="formulario">
+
+
+            <!-- DEFENSIVO -->
+
+            <div class="campo">
+
+                <label for="defensivo_id">
+                    Defensivo
+                </label>
+
+                <select
+                    id="defensivo_id"
+                    name="defensivo_id"
+                    required
+                >
+
+                    {% for defensivo in defensivos %}
+
+                        <option
+                            value="{{ defensivo['id'] }}"
+                            {% if defensivo['id'] == aplicacao['defensivo_id'] %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ defensivo['nome'] }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- TALHÃO -->
+
+            <div class="campo">
+
+                <label for="talhao_id">
+                    Talhão
+                </label>
+
+                <select
+                    id="talhao_id"
+                    name="talhao_id"
+                    required
+                >
+
+                    {% for talhao in talhoes %}
+
+                        <option
+                            value="{{ talhao['id'] }}"
+                            {% if talhao['id'] == aplicacao['talhao_id'] %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ talhao['nome'] }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- DATA -->
+
+            <div class="campo">
+
+                <label for="data_aplicacao">
+                    Data da aplicação
+                </label>
+
+                <input
+                    type="date"
+                    id="data_aplicacao"
+                    name="data_aplicacao"
+                    value="{{ aplicacao['data_aplicacao'] }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- QUANTIDADE -->
+
+            <div class="campo">
+
+                <label for="quantidade">
+                    Quantidade
+                </label>
+
+                <input
+                    type="number"
+                    id="quantidade"
+                    name="quantidade"
+                    step="0.01"
+                    min="0.01"
+                    value="{{ aplicacao['quantidade'] }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- RESPONSÁVEL -->
+
+            <div class="campo">
+
+                <label for="responsavel">
+                    Responsável
+                </label>
+
+                <input
+                    type="text"
+                    id="responsavel"
+                    name="responsavel"
+                    value="{{ aplicacao['responsavel'] }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- BOTÕES -->
+
+            <div class="botoes-formulario">
+
+                <button
+                    type="submit"
+                    class="botao-principal">
+                    Salvar alterações
+                </button>
+
+                <a
+                    href="{{ url_for('aplicacoes') }}"
+                    class="botao-secundario">
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

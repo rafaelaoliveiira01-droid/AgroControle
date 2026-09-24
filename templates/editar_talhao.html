@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Editar Talhão - AgroControl</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Editar Talhão</h1>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+
+            {% if mensagens %}
+
+                {% for categoria, mensagem in mensagens %}
+
+                    <div class="mensagem {{ categoria }}">
+                        {{ mensagem }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <form method="POST"
+              class="formulario">
+
+            <div class="campo">
+
+                <label for="nome">
+                    Nome do talhão
+                </label>
+
+                <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    value="{{ talhao['nome'] }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="botoes-formulario">
+
+                <button
+                    type="submit"
+                    class="botao-principal">
+                    Salvar alterações
+                </button>
+
+                <a
+                    href="{{ url_for('index') }}"
+                    class="botao-secundario">
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

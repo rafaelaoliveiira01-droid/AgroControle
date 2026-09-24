@@ -78,7 +78,13 @@
                         {% endif %}
                     ">
 
-                            {% if defensivo.estoque <= 20 %} Estoque baixo {% else %} Disponível {% endif %} </span>
+                            {% if defensivo.estoque <= 20 %}
+                                Estoque baixo
+                            {% else %}
+                                Disponível
+                            {% endif %}
+
+                        </span>
 
                     </div>
 
@@ -147,6 +153,7 @@
 
                     </div>
 
+
                     <div class="barra-fundo">
 
                         {% set percentual =
@@ -154,7 +161,7 @@
                         %}
 
                         {% if percentual > 100 %}
-                        {% set percentual = 100 %}
+                            {% set percentual = 100 %}
                         {% endif %}
 
                         <div class="barra-estoque" style="width: {{ percentual }}%;">
@@ -163,17 +170,48 @@
                     </div>
 
 
-                    {% if defensivo.estoque <= 20 %} <p class="aviso-estoque">
-                        ⚠ Atenção: estoque baixo.
+                    {% if defensivo.estoque <= 20 %}
+
+                        <p class="aviso-estoque">
+                            ⚠ Atenção: estoque baixo.
                         </p>
 
-                        {% else %}
+                    {% else %}
 
                         <p class="estoque-ok">
                             ✓ Estoque em quantidade adequada.
                         </p>
 
-                        {% endif %}
+                    {% endif %}
+
+
+                    <!-- BOTÕES DE EDITAR E EXCLUIR -->
+
+                    <div class="botoes-formulario">
+
+                        <a
+                            href="{{ url_for('editar_defensivo', id=defensivo.id) }}"
+                            class="botao-secundario"
+                        >
+                            ✏️ Editar
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('excluir_defensivo', id=defensivo.id) }}"
+                            onsubmit="return confirm('Tem certeza que deseja excluir este defensivo?');"
+                        >
+
+                            <button
+                                type="submit"
+                                class="botao-secundario"
+                            >
+                                🗑️ Excluir
+                            </button>
+
+                        </form>
+
+                    </div>
 
                 </div>
 

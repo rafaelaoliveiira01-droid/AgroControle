@@ -341,6 +341,10 @@ def dashboard():
 
     conexao = conectar_banco()
 
+    # ======================================
+    # ISSUE #19 - BUSCAR MÉTRICAS
+    # ======================================
+
     # Total de defensivos cadastrados
     total_produtos = conexao.execute("""
         SELECT COUNT(*)
@@ -353,7 +357,7 @@ def dashboard():
         FROM aplicacoes
     """).fetchone()[0]
 
-    # Quantidade total disponível em estoque
+    # Quantidade total disponível no estoque
     total_estoque = conexao.execute("""
         SELECT COALESCE(SUM(estoque), 0)
         FROM defensivos
@@ -366,33 +370,25 @@ def dashboard():
         SELECT COUNT(*)
         FROM aplicacoes
         WHERE data_liberacao > ?
-    """, (hoje.strftime("%Y-%m-%d"),)).fetchone()[0]
+    """, (
+        hoje.strftime("%Y-%m-%d"),
+    )).fetchone()[0]
 
-    # Aplicações para mostrar na tabela
-    aplicacoes = conexao.execute("""
-        SELECT
-            aplicacoes.*,
-            defensivos.nome AS defensivo,
-            talhoes.nome AS talhao
-        FROM aplicacoes
-        INNER JOIN defensivos
-            ON aplicacoes.defensivo_id = defensivos.id
-        INNER JOIN talhoes
-            ON aplicacoes.talhao_id = talhoes.id
-        ORDER BY aplicacoes.id DESC
-        LIMIT 10
-    """).fetchall()
 
-    
-    conexao.close()
+    # ======================================
+    # ISSUE #20 - ENVIAR DADOS PARA O HTML
+    # ======================================
 
     return render_template(
         "dashboard.html",
+
         total_produtos=total_produtos,
+
         total_aplicacoes=total_aplicacoes,
+
         total_estoque=total_estoque,
-        aplicacoes_carencia=aplicacoes_carencia,
-        aplicacoes=aplicacoes
+
+        aplicacoes_carencia=aplicacoes_carencia
     )
 # ==========================================
 # CADASTRO DE APLICAÇÃO

@@ -333,6 +333,13 @@ def index():
     )
 
 
+#===================
+# ROTA DASHBOARD
+#==================
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
 # ==========================================
 # CADASTRO DE APLICAÇÃO
 # ==========================================

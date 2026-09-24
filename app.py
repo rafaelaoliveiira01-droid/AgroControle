@@ -333,13 +333,66 @@ def index():
     )
 
 
-#===================
+#==================
 # ROTA DASHBOARD
 #==================
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html")
 
+    conexao = conectar_banco()
+
+    # Total de defensivos cadastrados
+    total_produtos = conexao.execute("""
+        SELECT COUNT(*)
+        FROM defensivos
+    """).fetchone()[0]
+
+    # Total de aplicações registradas
+    total_aplicacoes = conexao.execute("""
+        SELECT COUNT(*)
+        FROM aplicacoes
+    """).fetchone()[0]
+
+    # Quantidade total disponível em estoque
+    total_estoque = conexao.execute("""
+        SELECT COALESCE(SUM(estoque), 0)
+        FROM defensivos
+    """).fetchone()[0]
+
+    # Aplicações que ainda estão em período de carência
+    hoje = datetime.now().date()
+
+    aplicacoes_carencia = conexao.execute("""
+        SELECT COUNT(*)
+        FROM aplicacoes
+        WHERE data_liberacao > ?
+    """, (hoje.strftime("%Y-%m-%d"),)).fetchone()[0]
+
+    # Aplicações para mostrar na tabela
+    aplicacoes = conexao.execute("""
+        SELECT
+            aplicacoes.*,
+            defensivos.nome AS defensivo,
+            talhoes.nome AS talhao
+        FROM aplicacoes
+        INNER JOIN defensivos
+            ON aplicacoes.defensivo_id = defensivos.id
+        INNER JOIN talhoes
+            ON aplicacoes.talhao_id = talhoes.id
+        ORDER BY aplicacoes.id DESC
+        LIMIT 10
+    """).fetchall()
+
+    conexao.close()
+
+    return render_template(
+        "dashboard.html",
+        total_produtos=total_produtos,
+        total_aplicacoes=total_aplicacoes,
+        total_estoque=total_estoque,
+        aplicacoes_carencia=aplicacoes_carencia,
+        aplicacoes=aplicacoes
+    )
 # ==========================================
 # CADASTRO DE APLICAÇÃO
 # ==========================================

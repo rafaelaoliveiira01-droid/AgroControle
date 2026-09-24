@@ -383,6 +383,7 @@ def dashboard():
         LIMIT 10
     """).fetchall()
 
+    
     conexao.close()
 
     return render_template(

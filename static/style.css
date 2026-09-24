@@ -829,3 +829,112 @@ footer {
     flex: 1;
 }
 }
+/* =========================
+   DASHBOARD
+========================= */
+
+.dashboard-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+.dashboard-title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.dashboard-title h1 {
+    margin-bottom: 8px;
+}
+
+.dashboard-title p {
+    color: #666;
+}
+
+/* Cards */
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.dashboard-card .icone {
+    font-size: 35px;
+    margin-bottom: 10px;
+}
+
+.dashboard-card h2 {
+    margin: 5px 0;
+    font-size: 30px;
+}
+
+.dashboard-card p {
+    margin: 0;
+    color: #666;
+}
+
+/* Área das informações */
+
+.dashboard-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-section h2 {
+    margin-bottom: 20px;
+}
+
+/* Tabela */
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.dashboard-table th {
+    font-weight: bold;
+}
+
+/* Responsividade */
+
+@media (max-width: 900px) {
+    .dashboard-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-container {
+        width: 95%;
+    }
+}

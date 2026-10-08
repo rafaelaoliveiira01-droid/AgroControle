@@ -1,7 +1,7 @@
 import qrcode
 
 # Insira a URL que deseja transformar em QR Code aqui
-url_do_site = "https://scm4du.pythonanywhere.com/"
+url_do_site = "https://rafaelaoliveiira0101.pythonanywhere.com/"
 
 # Gera o QR Code com a URL
 imagem_qr = qrcode.make(url_do_site)

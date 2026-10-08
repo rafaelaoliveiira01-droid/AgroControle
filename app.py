@@ -1394,7 +1394,579 @@ def aplicacoes():
         aplicacoes=lista
 
     )
+# ==========================================
+# EDITAR TALHÃO
+# ==========================================
 
+@app.route("/editar-talhao/<int:id>", methods=["GET", "POST"])
+def editar_talhao(id):
+
+    conexao = conectar_banco()
+
+    talhao = conexao.execute("""
+        SELECT *
+        FROM talhoes
+        WHERE id = ?
+    """, (id,)).fetchone()
+
+    if talhao is None:
+
+        conexao.close()
+
+        flash(
+            "Talhão não encontrado!",
+            "erro"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    if request.method == "POST":
+
+        nome = request.form.get(
+            "nome",
+            ""
+        ).strip()
+
+        if not nome:
+
+            flash(
+                "Informe o nome do talhão!",
+                "erro"
+            )
+
+            conexao.close()
+
+            return redirect(
+                url_for(
+                    "editar_talhao",
+                    id=id
+                )
+            )
+
+        conexao.execute("""
+            UPDATE talhoes
+            SET nome = ?
+            WHERE id = ?
+        """, (
+            nome,
+            id
+        ))
+
+        conexao.commit()
+
+        conexao.close()
+
+        flash(
+            "Talhão atualizado com sucesso! 🌱",
+            "sucesso"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    conexao.close()
+
+    return render_template(
+        "editar_talhao.html",
+        talhao=talhao
+    )
+
+
+# ==========================================
+# EXCLUIR TALHÃO
+# ==========================================
+
+@app.route("/excluir-talhao/<int:id>", methods=["POST"])
+def excluir_talhao(id):
+
+    conexao = conectar_banco()
+
+    talhao = conexao.execute("""
+        SELECT *
+        FROM talhoes
+        WHERE id = ?
+    """, (id,)).fetchone()
+
+    if talhao is None:
+
+        conexao.close()
+
+        flash(
+            "Talhão não encontrado!",
+            "erro"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    # Verifica se existem aplicações
+    aplicacoes = conexao.execute("""
+        SELECT COUNT(*)
+        FROM aplicacoes
+        WHERE talhao_id = ?
+    """, (id,)).fetchone()[0]
+
+    if aplicacoes > 0:
+
+        conexao.close()
+
+        flash(
+            "Não é possível excluir este talhão porque existem aplicações registradas nele!",
+            "erro"
+        )
+
+        return redirect(
+            url_for("index")
+        )
+
+    conexao.execute("""
+        DELETE FROM talhoes
+        WHERE id = ?
+    """, (id,))
+
+    conexao.commit()
+
+    conexao.close()
+
+    flash(
+        "Talhão excluído com sucesso! 🗑️",
+        "sucesso"
+    )
+
+    return redirect(
+        url_for("index")
+    )
+
+
+# ==========================================
+# EDITAR APLICAÇÃO
+# ==========================================
+
+@app.route(
+    "/editar-aplicacao/<int:id>",
+    methods=["GET", "POST"]
+)
+def editar_aplicacao(id):
+
+    conexao = conectar_banco()
+
+    aplicacao = conexao.execute("""
+        SELECT *
+        FROM aplicacoes
+        WHERE id = ?
+    """, (id,)).fetchone()
+
+    if aplicacao is None:
+
+        conexao.close()
+
+        flash(
+            "Aplicação não encontrada!",
+            "erro"
+        )
+
+        return redirect(
+            url_for("aplicacoes")
+        )
+
+    # ======================================
+    # BUSCA DADOS PARA O FORMULÁRIO
+    # ======================================
+
+    defensivos = conexao.execute("""
+        SELECT *
+        FROM defensivos
+        ORDER BY nome
+    """).fetchall()
+
+    talhoes = conexao.execute("""
+        SELECT *
+        FROM talhoes
+        ORDER BY nome
+    """).fetchall()
+
+    if request.method == "POST":
+
+        try:
+
+            defensivo_id = int(
+                request.form.get(
+                    "defensivo_id"
+                )
+            )
+
+            talhao_id = int(
+                request.form.get(
+                    "talhao_id"
+                )
+            )
+
+            data_aplicacao = request.form.get(
+                "data_aplicacao",
+                ""
+            ).strip()
+
+            quantidade = float(
+                request.form.get(
+                    "quantidade"
+                )
+            )
+
+            responsavel = request.form.get(
+                "responsavel",
+                ""
+            ).strip()
+
+        except (TypeError, ValueError):
+
+            flash(
+                "Preencha corretamente todos os campos!",
+                "erro"
+            )
+
+            conexao.close()
+
+            return redirect(
+                url_for(
+                    "editar_aplicacao",
+                    id=id
+                )
+            )
+
+        # ==================================
+        # VALIDAÇÕES
+        # ==================================
+
+        if not data_aplicacao:
+
+            flash(
+                "Informe a data da aplicação!",
+                "erro"
+            )
+
+            conexao.close()
+
+            return redirect(
+                url_for(
+                    "editar_aplicacao",
+                    id=id
+                )
+            )
+
+        if not responsavel:
+
+            flash(
+                "Informe o responsável pela aplicação!",
+                "erro"
+            )
+
+            conexao.close()
+
+            return redirect(
+                url_for(
+                    "editar_aplicacao",
+                    id=id
+                )
+            )
+
+        if quantidade <= 0:
+
+            flash(
+                "A quantidade deve ser maior que zero!",
+                "erro"
+            )
+
+            conexao.close()
+
+            return redirect(
+                url_for(
+                    "editar_aplicacao",
+                    id=id
+                )
+            )
+
+        # ==================================
+        # VALIDA DATA
+        # ==================================
+
+        try:
+
+            data = datetime.strptime(
+                data_aplicacao,
+                "%Y-%m-%d"
+            ).date()
+
+        except ValueError:
+
+            flash(
+                "Data da aplicação inválida!",
+                "erro"
+            )
+
+            conexao.close()
+
+            return redirect(
+                url_for(
+                    "editar_aplicacao",
+                    id=id
+                )
+            )
+
+        # ==================================
+        # BUSCA NOVO DEFENSIVO
+        # ==================================
+
+        novo_defensivo = conexao.execute("""
+            SELECT *
+            FROM defensivos
+            WHERE id = ?
+        """, (
+            defensivo_id,
+        )).fetchone()
+
+        if novo_defensivo is None:
+
+            flash(
+                "Defensivo selecionado não encontrado!",
+                "erro"
+            )
+
+            conexao.close()
+
+            return redirect(
+                url_for(
+                    "editar_aplicacao",
+                    id=id
+                )
+            )
+
+        # ==================================
+        # VERIFICA TALHÃO
+        # ==================================
+
+        talhao = conexao.execute("""
+            SELECT *
+            FROM talhoes
+            WHERE id = ?
+        """, (
+            talhao_id,
+        )).fetchone()
+
+        if talhao is None:
+
+            flash(
+                "Talhão selecionado não encontrado!",
+                "erro"
+            )
+
+            conexao.close()
+
+            return redirect(
+                url_for(
+                    "editar_aplicacao",
+                    id=id
+                )
+            )
+
+        # ==================================
+        # AJUSTE DO ESTOQUE
+        # ==================================
+
+        antigo_defensivo_id = aplicacao["defensivo_id"]
+
+        antiga_quantidade = aplicacao["quantidade"]
+
+        # Devolve ao estoque a quantidade da
+        # aplicação antiga
+        conexao.execute("""
+            UPDATE defensivos
+            SET estoque = estoque + ?
+            WHERE id = ?
+        """, (
+            antiga_quantidade,
+            antigo_defensivo_id
+        ))
+
+        # Busca novamente o estoque do
+        # novo defensivo
+        novo_defensivo = conexao.execute("""
+            SELECT *
+            FROM defensivos
+            WHERE id = ?
+        """, (
+            defensivo_id,
+        )).fetchone()
+
+        # Verifica se existe estoque suficiente
+        if quantidade > novo_defensivo["estoque"]:
+
+            # Desfaz a devolução anterior
+            conexao.execute("""
+                UPDATE defensivos
+                SET estoque = estoque - ?
+                WHERE id = ?
+            """, (
+                antiga_quantidade,
+                antigo_defensivo_id
+            ))
+
+            conexao.close()
+
+            flash(
+                "Quantidade maior que o estoque disponível!",
+                "erro"
+            )
+
+            return redirect(
+                url_for(
+                    "editar_aplicacao",
+                    id=id
+                )
+            )
+
+        # ==================================
+        # CALCULA NOVA DATA DE LIBERAÇÃO
+        # ==================================
+
+        data_liberacao = data + timedelta(
+            days=novo_defensivo["carencia"]
+        )
+
+        # ==================================
+        # DESCONTA NOVO ESTOQUE
+        # ==================================
+
+        conexao.execute("""
+            UPDATE defensivos
+            SET estoque = estoque - ?
+            WHERE id = ?
+        """, (
+            quantidade,
+            defensivo_id
+        ))
+
+        # ==================================
+        # ATUALIZA APLICAÇÃO
+        # ==================================
+
+        conexao.execute("""
+            UPDATE aplicacoes
+
+            SET
+                defensivo_id = ?,
+                talhao_id = ?,
+                data_aplicacao = ?,
+                quantidade = ?,
+                responsavel = ?,
+                data_liberacao = ?
+
+            WHERE id = ?
+        """, (
+            defensivo_id,
+            talhao_id,
+            data_aplicacao,
+            quantidade,
+            responsavel,
+            data_liberacao.strftime(
+                "%Y-%m-%d"
+            ),
+            id
+        ))
+
+        conexao.commit()
+
+        conexao.close()
+
+        flash(
+            "Aplicação atualizada com sucesso! 🌱",
+            "sucesso"
+        )
+
+        return redirect(
+            url_for("aplicacoes")
+        )
+
+    conexao.close()
+
+    return render_template(
+        "editar_aplicacao.html",
+        aplicacao=aplicacao,
+        defensivos=defensivos,
+        talhoes=talhoes
+    )
+
+
+# ==========================================
+# EXCLUIR APLICAÇÃO
+# ==========================================
+
+@app.route(
+    "/excluir-aplicacao/<int:id>",
+    methods=["POST"]
+)
+def excluir_aplicacao(id):
+
+    conexao = conectar_banco()
+
+    aplicacao = conexao.execute("""
+        SELECT *
+        FROM aplicacoes
+        WHERE id = ?
+    """, (id,)).fetchone()
+
+    if aplicacao is None:
+
+        conexao.close()
+
+        flash(
+            "Aplicação não encontrada!",
+            "erro"
+        )
+
+        return redirect(
+            url_for("aplicacoes")
+        )
+
+    # ======================================
+    # DEVOLVE A QUANTIDADE AO ESTOQUE
+    # ======================================
+
+    conexao.execute("""
+        UPDATE defensivos
+
+        SET estoque = estoque + ?
+
+        WHERE id = ?
+    """, (
+        aplicacao["quantidade"],
+        aplicacao["defensivo_id"]
+    ))
+
+    # ======================================
+    # EXCLUI APLICAÇÃO
+    # ======================================
+
+    conexao.execute("""
+        DELETE FROM aplicacoes
+        WHERE id = ?
+    """, (id,))
+
+    conexao.commit()
+
+    conexao.close()
+
+    flash(
+        "Aplicação excluída e estoque restaurado! 🗑️",
+        "sucesso"
+    )
+
+    return redirect(
+        url_for("aplicacoes")
+    )
 
 # ==========================================
 # INICIAR SISTEMA

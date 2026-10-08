@@ -905,3 +905,665 @@ footer {
         width: 95%;
     }
 }
+/* ==========================================
+   BOTÕES
+   ========================================== */
+
+.botao-principal,
+.botao-secundario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 10px 18px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   BOTÃO PRINCIPAL
+   ========================================== */
+
+.botao-principal {
+    border: none;
+
+    background: #2e7d32;
+    color: white;
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+.botao-principal:hover {
+    background: #256b29;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+}
+
+.botao-principal:active {
+    transform: translateY(0);
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+
+/* ==========================================
+   BOTÃO SECUNDÁRIO
+   ========================================== */
+
+.botao-secundario {
+    border: 1px solid #d0d7d2;
+
+    background: #ffffff;
+    color: #2e7d32;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.botao-secundario:hover {
+    background: #f1f7f2;
+
+    border-color: #2e7d32;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.botao-secundario:active {
+    transform: translateY(0);
+}
+
+
+/* ==========================================
+   ÁREA DOS BOTÕES
+   ========================================== */
+
+.botoes-formulario {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 20px;
+
+    flex-wrap: wrap;
+}
+
+
+/* ==========================================
+   BOTÕES EM FORMULÁRIOS
+   ========================================== */
+
+.botoes-formulario form {
+    margin: 0;
+}
+
+
+/* ==========================================
+   AJUSTE PARA CELULAR
+   ========================================== */
+
+@media (max-width: 600px) {
+
+    .botoes-formulario {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .botao-principal,
+    .botao-secundario {
+        width: 100%;
+    }
+
+}
+
+/* ==========================================
+   PÁGINAS DE EDIÇÃO
+   ========================================== */
+
+.container {
+    max-width: 650px;
+    margin: 40px auto;
+    padding: 30px;
+}
+
+
+/* ==========================================
+   TÍTULO DA PÁGINA
+   ========================================== */
+
+.container h1 {
+    margin-bottom: 28px;
+
+    font-size: 28px;
+    font-weight: 700;
+
+    color: #2e7d32;
+
+    text-align: center;
+}
+
+
+/* ==========================================
+   FORMULÁRIO
+   ========================================== */
+
+.formulario {
+    background: #ffffff;
+
+    padding: 30px;
+
+    border-radius: 14px;
+
+    border: 1px solid #e2e8e3;
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ==========================================
+   CAMPOS
+   ========================================== */
+
+.campo {
+    display: flex;
+
+    flex-direction: column;
+
+    margin-bottom: 20px;
+}
+
+
+/* ==========================================
+   LABEL
+   ========================================== */
+
+.campo label {
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #344238;
+}
+
+
+/* ==========================================
+   INPUTS E SELECTS
+   ========================================== */
+
+.campo input,
+.campo select {
+    width: 100%;
+
+    min-height: 44px;
+
+    padding: 10px 12px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #ccd5ce;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #26332a;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+
+/* ==========================================
+   FOCO NOS CAMPOS
+   ========================================== */
+
+.campo input:focus,
+.campo select:focus {
+    border-color: #2e7d32;
+
+    background: #fbfefb;
+
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.12);
+}
+
+
+/* ==========================================
+   SELECT
+   ========================================== */
+
+.campo select {
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   ÁREA DOS BOTÕES
+   ========================================== */
+
+.botoes-formulario {
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 28px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #e7ece8;
+}
+
+
+/* ==========================================
+   MENSAGENS
+   ========================================== */
+
+.mensagem {
+    padding: 12px 15px;
+
+    margin-bottom: 20px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+
+    font-weight: 500;
+}
+
+.mensagem.erro {
+    background: #fff1f1;
+
+    border: 1px solid #f0caca;
+
+    color: #a52a2a;
+}
+
+.mensagem.sucesso {
+    background: #eff9f0;
+
+    border: 1px solid #c9e5cc;
+
+    color: #2e7d32;
+}
+
+
+/* ==========================================
+   RESPONSIVIDADE
+   ========================================== */
+
+@media (max-width: 700px) {
+
+    .container {
+        width: 100%;
+
+        margin: 20px auto;
+
+        padding: 15px;
+
+        box-sizing: border-box;
+    }
+
+    .formulario {
+        padding: 22px;
+    }
+
+    .container h1 {
+        font-size: 24px;
+    }
+
+    .botoes-formulario {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .botao-principal,
+    .botao-secundario {
+        width: 100%;
+    }
+
+}
+/* ==========================================
+   PÁGINA DE EDITAR DEFENSIVO
+   ========================================== */
+
+.pagina-edicao {
+    width: 100%;
+    max-width: 700px;
+
+    margin: 40px auto;
+    padding: 0 20px;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   CABEÇALHO
+   ========================================== */
+
+.cabecalho-edicao {
+    margin-bottom: 25px;
+
+    text-align: center;
+}
+
+.cabecalho-edicao h1 {
+    margin: 0 0 8px;
+
+    color: #2e7d32;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.cabecalho-edicao p {
+    margin: 0;
+
+    color: #68736b;
+
+    font-size: 14px;
+}
+
+
+/* ==========================================
+   FORMULÁRIO
+   ========================================== */
+
+.formulario-edicao {
+    padding: 30px;
+
+    background: #ffffff;
+
+    border: 1px solid #e1e7e2;
+
+    border-radius: 14px;
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   CAMPOS
+   ========================================== */
+
+.campo-edicao {
+    margin-bottom: 20px;
+}
+
+.campo-edicao label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #344238;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   INPUTS E SELECTS
+   ========================================== */
+
+.campo-edicao input,
+.campo-edicao select {
+    width: 100%;
+
+    height: 44px;
+
+    padding: 10px 12px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #ccd5ce;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #26332a;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition: 0.2s ease;
+}
+
+
+/* ==========================================
+   FOCO
+   ========================================== */
+
+.campo-edicao input:focus,
+.campo-edicao select:focus {
+    border-color: #2e7d32;
+
+    background: #fbfefb;
+
+    box-shadow:
+        0 0 0 3px rgba(46, 125, 50, 0.12);
+}
+
+
+/* ==========================================
+   CARÊNCIA + DIAS
+   ========================================== */
+
+.campo-com-unidade {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.campo-com-unidade input {
+    flex: 1;
+}
+
+.campo-com-unidade span {
+    color: #68736b;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   BOTÕES
+   ========================================== */
+
+.botoes-edicao {
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 28px;
+
+    padding-top: 22px;
+
+    border-top: 1px solid #e5eae6;
+}
+
+
+/* ==========================================
+   BOTÃO PRINCIPAL
+   ========================================== */
+
+.botoes-edicao .botao-principal {
+    min-height: 44px;
+
+    padding: 10px 20px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2e7d32;
+
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.botoes-edicao .botao-principal:hover {
+    background: #256b29;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+/* ==========================================
+   BOTÃO VOLTAR
+   ========================================== */
+
+.botoes-edicao .botao-secundario {
+    min-height: 44px;
+
+    padding: 10px 20px;
+
+    border: 1px solid #ccd5ce;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #2e7d32;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    box-sizing: border-box;
+
+    transition: 0.2s ease;
+}
+
+.botoes-edicao .botao-secundario:hover {
+    background: #f1f7f2;
+
+    border-color: #2e7d32;
+
+    transform: translateY(-1px);
+}
+
+
+/* ==========================================
+   MENSAGENS
+   ========================================== */
+
+.pagina-edicao .mensagem {
+    padding: 12px 15px;
+
+    margin-bottom: 20px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+.pagina-edicao .mensagem.erro {
+    background: #fff1f1;
+
+    border: 1px solid #f0caca;
+
+    color: #a52a2a;
+}
+
+.pagina-edicao .mensagem.sucesso {
+    background: #eff9f0;
+
+    border: 1px solid #c9e5cc;
+
+    color: #2e7d32;
+}
+
+
+/* ==========================================
+   CELULAR
+   ========================================== */
+
+@media (max-width: 600px) {
+
+    .pagina-edicao {
+        margin: 20px auto;
+
+        padding: 0 15px;
+    }
+
+    .formulario-edicao {
+        padding: 20px;
+    }
+
+    .cabecalho-edicao h1 {
+        font-size: 24px;
+    }
+
+    .botoes-edicao {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .botoes-edicao .botao-principal,
+    .botoes-edicao .botao-secundario {
+        width: 100%;
+
+        text-align: center;
+    }
+
+}

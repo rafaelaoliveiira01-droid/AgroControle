@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - AgroControl</title>
+
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: #07120c;
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+    }
+
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 120px;
+        padding: 40px;
+    }
+
+    .login-logo {
+        text-align: center;
+        width: 420px;
+    }
+
+    .login-logo h1 {
+        font-size: 42px;
+        margin: 0 0 10px;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    .login-logo p {
+        margin: 0;
+        font-size: 17px;
+        color: #b9c9c0;
+    }
+
+    .login-card {
+        width: 380px;
+        background: white;
+        color: #07120c;
+        border-radius: 10px;
+        padding: 32px;
+        border-top: 4px solid #19c463;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .login-card h2 {
+        margin: 0 0 24px;
+        font-size: 28px;
+    }
+
+    .login-aviso {
+        background: #ffe1dc;
+        color: #c0392b;
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
+
+    .campo-login {
+        margin-bottom: 18px;
+    }
+
+    .campo-login label {
+        display: block;
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 7px;
+        text-transform: uppercase;
+    }
+
+    .campo-login input {
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #cfd8d3;
+        border-radius: 6px;
+        background: #eef5ff;
+        font-size: 15px;
+        outline: none;
+    }
+
+    .campo-login input:focus {
+        border-color: #19c463;
+    }
+
+    .botao-login {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 6px;
+        background: #19c463;
+        color: white;
+        font-weight: bold;
+        font-size: 15px;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+
+    .botao-login:hover {
+        background: #14a953;
+    }
+
+    .criar-conta {
+        text-align: center;
+        margin-top: 24px;
+        font-size: 14px;
+        color: #c5cec9;
+    }
+
+    .criar-conta a {
+        display: block;
+        margin-top: 7px;
+        color: #078b45;
+        font-size: 17px;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .criar-conta a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 800px) {
+        .login-container {
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .login-logo {
+            width: 100%;
+        }
+
+        .login-logo h1 {
+            font-size: 34px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 380px;
+        }
+    }
+</style>
+    
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-logo">
+        <h1>AGROCONTROL</h1>
+        <p>Sistema de gerenciamento agrícola</p>
+    </div>
+
+    <div class="login-card">
+
+        <h2>Entrar</h2>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                {% for categoria, mensagem in mensagens %}
+                    <div class="login-aviso">
+                        {{ mensagem }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="login-aviso">
+                    Faça login para acessar o AgroControl.
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+
+            <div class="campo-login">
+                <label for="email">E-mail</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Digite seu e-mail"
+                    required
+                >
+            </div>
+
+            <div class="campo-login">
+                <label for="senha">Senha</label>
+                <input
+                    type="password"
+                    id="senha"
+                    name="senha"
+                    placeholder="Digite sua senha"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="botao-login">
+                ENTRAR
+            </button>
+
+        </form>
+
+        <div class="criar-conta">
+            Ainda não possui uma conta?
+
+            <a href="{{ url_for('cadastro_usuario') }}">
+                Criar minha conta
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

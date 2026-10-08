@@ -1,62 +1,25 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}
+    AgroControl
+{% endblock %}
 
-    <title>AgroControl </title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-</head>
-
-<body>
-
-<header>
-
-    <div class="logo">
-         AgroControl
-    </div>
-<nav>
-
-    <a href="/" class="ativo">
-        Início
-    </a>
-
-    <a href="/cadastro">
-        Nova Aplicação
-    </a>
-
-    <a href="/aplicacoes">
-        Aplicações
-    </a>
-
-    <a href="/estoque">
-        Estoque
-    </a>
-
-    <a href="/rastreabilidade">
-        Rastreabilidade
-    </a>
-
-    <a href="{{ url_for('dashboard') }}">
-         Dashboard</a>
-</nav>
-
-</header>
-
+{% block content %}
 
 <main>
 
     <section class="hero">
 
         <div>
-            <span class="tag">GESTÃO RURAL</span>
+
+            <span class="tag">
+                GESTÃO RURAL
+            </span>
 
             <h1>
                 Controle de<br>
-                <strong>Defensivos Agrícolas</strong> 
+                <strong>Defensivos Agrícolas</strong>
             </h1>
 
             <p>
@@ -64,13 +27,15 @@
                 e saiba quando a colheita estará liberada.
             </p>
 
-            <a href="/cadastro" class="botao">
+            <a href="{{ url_for('cadastro') }}" class="botao">
                 + Registrar aplicação
             </a>
+
         </div>
 
+
         <div class="hero-icon">
-            
+
         </div>
 
     </section>
@@ -127,11 +92,19 @@
         <div class="titulo-secao">
 
             <div>
-                <span class="tag">MONITORAMENTO</span>
-                <h2>Últimas aplicações</h2>
+
+                <span class="tag">
+                    MONITORAMENTO
+                </span>
+
+                <h2>
+                    Últimas aplicações
+                </h2>
+
             </div>
 
-            <a href="/aplicacoes">
+
+            <a href="{{ url_for('aplicacoes') }}">
                 Ver todas →
             </a>
 
@@ -147,14 +120,31 @@
                 <thead>
 
                     <tr>
-                        <th>Defensivo</th>
-                        <th>Talhão</th>
-                        <th>Aplicação</th>
-                        <th>Liberação</th>
-                        <th>Status</th>
+
+                        <th>
+                            Defensivo
+                        </th>
+
+                        <th>
+                            Talhão
+                        </th>
+
+                        <th>
+                            Aplicação
+                        </th>
+
+                        <th>
+                            Liberação
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
                     </tr>
 
                 </thead>
+
 
                 <tbody>
 
@@ -163,22 +153,28 @@
                     <tr>
 
                         <td>
+
                             <strong>
                                 {{ aplicacao.defensivo }}
                             </strong>
+
                         </td>
 
+
                         <td>
-                             {{ aplicacao.talhao }}
+                            {{ aplicacao.talhao }}
                         </td>
+
 
                         <td>
                             {{ aplicacao.data_aplicacao }}
                         </td>
 
+
                         <td>
                             {{ aplicacao.data_liberacao }}
                         </td>
+
 
                         <td>
 
@@ -212,9 +208,13 @@
 
         <div class="vazio">
 
-            <span>🌱</span>
+            <span>
+                🌱
+            </span>
 
-            <h3>Nenhuma aplicação registrada</h3>
+            <h3>
+                Nenhuma aplicação registrada
+            </h3>
 
             <p>
                 Comece registrando uma aplicação de defensivo.
@@ -232,11 +232,9 @@
 <footer>
 
     <p>
-         AgroControl • Sistema de gestão agrícola
+        AgroControl • Sistema de gestão agrícola
     </p>
 
 </footer>
 
-</body>
-
-</html>
+{% endblock %}

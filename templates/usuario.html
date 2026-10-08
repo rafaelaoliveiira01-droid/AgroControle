@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}
+Perfil de {{ usuario.nome }} - AgroControl
+{% endblock %}
+
+
+{% block content %}
+
+<div class="pagina-edicao">
+
+    <div class="cabecalho-edicao">
+
+        <h1>{{ usuario.nome }}</h1>
+
+        <p>
+            Perfil do usuário
+        </p>
+
+    </div>
+
+
+    <div class="formulario-edicao">
+
+        <div style="
+            text-align:center;
+            margin-bottom:30px;
+        ">
+
+            {% if usuario.foto %}
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/perfis/' + usuario.foto
+                    ) }}"
+                    alt="Foto de {{ usuario.nome }}"
+                    style="
+                        width:150px;
+                        height:150px;
+                        object-fit:cover;
+                        border-radius:50%;
+                        border:4px solid #19c463;
+                    "
+                >
+
+            {% else %}
+
+                <div style="
+                    width:150px;
+                    height:150px;
+                    margin:auto;
+                    border-radius:50%;
+                    background:#dff4e5;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    font-size:60px;
+                ">
+                    👤
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="campo-edicao">
+
+            <label>
+                Nome
+            </label>
+
+            <input
+                type="text"
+                value="{{ usuario.nome }}"
+                disabled
+            >
+
+        </div>
+
+
+        <div class="campo-edicao">
+
+            <label>
+                E-mail
+            </label>
+
+            <input
+                type="email"
+                value="{{ usuario.email }}"
+                disabled
+            >
+
+        </div>
+
+
+        <div class="campo-edicao">
+
+            <label>
+                Nota / algo interessante
+            </label>
+
+            <div style="
+                background:#f4f8f5;
+                padding:18px;
+                border-radius:6px;
+                color:#36533c;
+                min-height:80px;
+            ">
+
+                {% if usuario.nota %}
+
+                    {{ usuario.nota }}
+
+                {% else %}
+
+                    Este usuário ainda não adicionou
+                    nenhuma nota.
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="botoes-edicao">
+
+            <a
+                href="{{ url_for('usuarios') }}"
+                class="botao-secundario"
+            >
+                ← Voltar para usuários
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

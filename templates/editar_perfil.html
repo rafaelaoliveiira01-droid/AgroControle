@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}
+Editar Perfil - AgroControl
+{% endblock %}
+
+
+{% block content %}
+
+<div class="pagina-edicao">
+
+    <div class="cabecalho-edicao">
+
+        <h1>Editar Perfil</h1>
+
+        <p>
+            Atualize suas informações.
+        </p>
+
+    </div>
+
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+        class="formulario-edicao"
+    >
+
+        <div class="campo-edicao">
+
+            <label>
+                Nome
+            </label>
+
+            <input
+                type="text"
+                name="nome"
+                value="{{ usuario.nome }}"
+                required
+            >
+
+        </div>
+
+
+        <div class="campo-edicao">
+
+            <label>
+                E-mail
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                value="{{ usuario.email }}"
+                required
+            >
+
+        </div>
+
+
+        <div class="campo-edicao">
+
+            <label>
+                Foto de perfil
+            </label>
+
+            <input
+                type="file"
+                name="foto"
+                accept=".png,.jpg,.jpeg,.webp"
+            >
+
+        </div>
+
+
+        <div class="campo-edicao">
+
+            <label>
+                Nota / algo interessante
+            </label>
+
+            <textarea
+                name="nota"
+                rows="5"
+                style="
+                    width:100%;
+                    padding:12px;
+                    border:1px solid #ccd8cf;
+                    border-radius:6px;
+                    resize:vertical;
+                "
+                placeholder="Escreva alguma informação interessante sobre você..."
+            >{{ usuario.nota or "" }}</textarea>
+
+        </div>
+
+
+        <div class="campo-edicao">
+
+            <label>
+                Nova senha
+            </label>
+
+            <input
+                type="password"
+                name="senha"
+                minlength="6"
+                placeholder="Deixe vazio para manter a atual"
+            >
+
+        </div>
+
+
+        <div class="botoes-edicao">
+
+            <a
+                href="{{ url_for('perfil') }}"
+                class="botao-secundario"
+            >
+                ← Voltar
+            </a>
+
+
+            <button
+                type="submit"
+                class="botao-principal"
+            >
+                ✓ Salvar alterações
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

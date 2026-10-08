@@ -1695,3 +1695,380 @@ footer {
         width: 100%;
     }
 }
+
+/* ==========================================
+   LOGIN E CADASTRO DE USUÁRIO
+   ========================================== */
+
+.pagina-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    background: #07120c;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 460px;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+}
+
+.cadastro-card {
+    max-width: 520px;
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-agro {
+    color: #19c463;
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.login-logo p {
+    color: #555;
+    margin-top: 8px;
+}
+
+.login-card h1 {
+    text-align: center;
+    color: #07120c;
+    margin-bottom: 25px;
+}
+
+.login-cadastro {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.login-cadastro p {
+    color: #555;
+    margin-bottom: 12px;
+}
+
+
+/* ==========================================
+   MENSAGENS
+   ========================================== */
+
+.mensagem {
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.mensagem.sucesso {
+    background: #d9f8e6;
+    color: #087b3d;
+    border: 1px solid #19c463;
+}
+
+.mensagem.erro {
+    background: #ffe2e2;
+    color: #a50000;
+    border: 1px solid #e04a4a;
+}
+
+
+/* ==========================================
+   USUÁRIOS
+   ========================================== */
+
+.usuarios-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(280px, 1fr)
+    );
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.usuario-card {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    transition: 0.2s;
+}
+
+.usuario-card:hover {
+    transform: translateY(-3px);
+}
+
+.usuario-foto {
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #19c463;
+}
+
+.usuario-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.usuario-sem-foto {
+    width: 100%;
+    height: 100%;
+    background: #dff7e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 45px;
+}
+
+.usuario-info h2 {
+    margin: 5px 0;
+    color: #07120c;
+}
+
+.usuario-info p {
+    color: #555;
+    margin: 5px 0 10px;
+}
+
+.usuario-info small {
+    color: #777;
+}
+
+.usuario-acoes {
+    margin-top: 20px;
+}
+
+
+/* ==========================================
+   PERFIL
+   ========================================== */
+
+.perfil-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.perfil-principal {
+    text-align: center;
+}
+
+.perfil-foto {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid #19c463;
+}
+
+.perfil-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.perfil-sem-foto {
+    width: 100%;
+    height: 100%;
+    background: #dff7e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+}
+
+.perfil-principal h2 {
+    color: #07120c;
+    margin-bottom: 8px;
+}
+
+.perfil-principal p {
+    color: #555;
+}
+
+.perfil-acoes {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+/* ==========================================
+   NOTAS
+   ========================================== */
+
+.notas-area {
+    min-width: 0;
+}
+
+.notas-lista {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.nota-card {
+    position: relative;
+    background: #f1faf5;
+    border-left: 5px solid #19c463;
+    padding: 18px;
+    border-radius: 8px;
+}
+
+.nota-card p {
+    color: #222;
+    line-height: 1.5;
+    margin: 0 0 10px;
+    padding-right: 70px;
+}
+
+.nota-card small {
+    color: #777;
+}
+
+.nota-card form {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.botao-pequeno {
+    border: none;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.botao-pequeno.excluir {
+    background: #ffe0e0;
+    color: #a00000;
+}
+
+.texto-vazio {
+    color: #777;
+    text-align: center;
+    padding: 20px;
+}
+
+
+/* ==========================================
+   EXCLUSÃO
+   ========================================== */
+
+.botao-excluir {
+    width: 100%;
+    background: #d93030;
+    color: #ffffff;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.botao-excluir:hover {
+    background: #b82020;
+}
+
+
+/* ==========================================
+   FORMULÁRIO DE PERFIL
+   ========================================== */
+
+.formulario-card {
+    max-width: 700px;
+    margin: 30px auto;
+}
+
+.botoes-formulario {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.foto-atual {
+    margin: 15px 0;
+}
+
+.foto-atual p {
+    font-weight: bold;
+    color: #07120c;
+}
+
+.foto-atual img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #19c463;
+}
+
+
+/* ==========================================
+   VAZIO
+   ========================================== */
+
+.vazio {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.vazio h2 {
+    color: #07120c;
+}
+
+.vazio p {
+    color: #666;
+}
+
+
+/* ==========================================
+   RESPONSIVO
+   ========================================== */
+
+@media (max-width: 850px) {
+
+    .perfil-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .login-card {
+        padding: 25px 20px;
+    }
+
+    .usuarios-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .botoes-formulario {
+        flex-direction: column;
+    }
+
+    .botoes-formulario .botao {
+        width: 100%;
+    }
+
+}

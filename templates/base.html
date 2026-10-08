@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}AgroControl{% endblock %}
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    {% block extra_css %}{% endblock %}
+
+</head>
+
+<body>
+
+<header>
+
+    <a href="{{ url_for('index') }}"
+       class="logo">
+        AGROCONTROL
+    </a>
+
+
+    <nav>
+
+        <a href="{{ url_for('index') }}">
+            Início
+        </a>
+
+        <a href="{{ url_for('cadastro') }}">
+            Nova Aplicação
+        </a>
+
+        <a href="{{ url_for('aplicacoes') }}">
+            Aplicações
+        </a>
+
+        <a href="{{ url_for('estoque') }}">
+            Estoque
+        </a>
+
+        <a href="{{ url_for('rastreabilidade') }}">
+            Rastreabilidade
+        </a>
+
+        <a href="{{ url_for('dashboard') }}">
+            Dashboard
+        </a>
+
+        <a href="{{ url_for('perfil') }}">
+            Perfil
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            Sair
+        </a>
+
+    </nav>
+
+</header>
+
+
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+
+    {% if mensagens %}
+
+        <div class="mensagens">
+
+            {% for categoria, mensagem in mensagens %}
+
+                <div class="mensagem {{ categoria }}">
+                    {{ mensagem }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+{% endwith %}
+
+
+<main>
+
+    {% block content %}{% endblock %}
+
+</main>
+
+
+{% block scripts %}{% endblock %}
+
+</body>
+
+</html>

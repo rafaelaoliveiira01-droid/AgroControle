@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastro - AgroControl</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="pagina-login">
+
+    <div class="login-logo">
+
+        <h1>AGROCONTROL</h1>
+
+        <p>
+            Crie sua conta para acessar o sistema
+        </p>
+
+    </div>
+
+
+    <div class="login-card">
+
+        <h2>Criar conta</h2>
+
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+
+            {% if mensagens %}
+
+                {% for categoria, mensagem in mensagens %}
+
+                    <div class="login-mensagem">
+                        {{ mensagem }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <form method="POST">
+
+            <div class="login-campo">
+
+                <label>
+                    Nome
+                </label>
+
+                <input
+                    type="text"
+                    name="nome"
+                    placeholder="Seu nome"
+                    required
+                >
+
+            </div>
+
+
+            <div class="login-campo">
+
+                <label>
+                    E-mail
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="seuemail@email.com"
+                    required
+                >
+
+            </div>
+
+
+            <div class="login-campo">
+
+                <label>
+                    Senha
+                </label>
+
+                <input
+                    type="password"
+                    name="senha"
+                    placeholder="Mínimo de 6 caracteres"
+                    minlength="6"
+                    required
+                >
+
+            </div>
+
+
+            <div class="login-campo">
+
+                <label>
+                    Confirmar senha
+                </label>
+
+                <input
+                    type="password"
+                    name="confirmar_senha"
+                    placeholder="Digite a senha novamente"
+                    minlength="6"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="login-botao"
+            >
+                CRIAR CONTA
+            </button>
+
+        </form>
+
+
+        <div class="login-link">
+
+            Já possui uma conta?
+
+            <br>
+
+            <a href="{{ url_for('login') }}">
+                Voltar para o login
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

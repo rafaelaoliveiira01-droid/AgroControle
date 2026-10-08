@@ -3,7 +3,13 @@
 
 <head>
 
+<<<<<<< HEAD
+        <label>
+             Nome do defensivo *
+        </label>
+=======
     <meta charset="UTF-8">
+>>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
 
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
@@ -15,7 +21,13 @@
 
 </head>
 
+<<<<<<< HEAD
+        <label>
+             Categoria *
+        </label>
+=======
 <body>
+>>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
 
     <div class="pagina-edicao">
 
@@ -23,16 +35,87 @@
 
             <h1>Editar Defensivo</h1>
 
+<<<<<<< HEAD
+            <option value="Inseticida"
+                {% if defensivo.categoria == "Inseticida" %}selected{% endif %}>
+                Inseticida
+            </option>
+
+            <option value="Fungicida"
+                {% if defensivo.categoria == "Fungicida" %}selected{% endif %}>
+                Fungicida
+            </option>
+
+            <option value="Acaricida"
+                {% if defensivo.categoria == "Acaricida" %}selected{% endif %}>
+                Acaricida
+            </option>
+
+            <option value="Fertilizante"
+                {% if defensivo.categoria == "Fertilizante" %}selected{% endif %}>
+                Fertilizante
+            </option>
+
+            <option value="Outro"
+                {% if defensivo.categoria == "Outro" %}selected{% endif %}>
+                Outro
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <div class="campo">
+
+        <label>
+             Fabricante *
+        </label>
+
+        <input
+            type="text"
+            name="fabricante"
+            value="{{ defensivo.fabricante }}"
+            required
+        >
+
+    </div>
+
+
+    <div class="linha">
+
+        <div class="campo">
+
+            <label>
+                 Quantidade *
+            </label>
+
+            <input
+                type="number"
+                name="quantidade"
+                step="0.01"
+                min="0"
+                value="{{ defensivo.estoque }}"
+                required
+            >
+=======
             <p>
                 Altere os dados do defensivo e salve as alterações.
             </p>
+>>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
 
         </div>
 
 
         {% with mensagens = get_flashed_messages(with_categories=true) %}
 
+<<<<<<< HEAD
+            <label>
+                 Unidade de medida *
+            </label>
+=======
             {% if mensagens %}
+>>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
 
                 {% for categoria, mensagem in mensagens %}
 
@@ -47,9 +130,23 @@
         {% endwith %}
 
 
+<<<<<<< HEAD
+    <div class="campo">
+
+        <label>
+             Data de validade *
+        </label>
+
+        <input
+            type="date"
+            name="validade"
+            value="{{ defensivo.validade }}"
+            required
+=======
         <form
             method="POST"
             class="formulario-edicao"
+>>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
         >
 
 
@@ -74,7 +171,13 @@
 
             <!-- CATEGORIA -->
 
+<<<<<<< HEAD
+        <label>
+             Período de carência
+        </label>
+=======
             <div class="campo-edicao">
+>>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
 
                 <label for="categoria">
                      Categoria
@@ -310,4 +413,38 @@
 
 </body>
 
+<<<<<<< HEAD
+    <div class="info">
+
+        <span></span>
+
+        <p>
+            Altere os dados do defensivo e clique em
+            "Salvar alterações".
+        </p>
+
+    </div>
+
+
+    <div class="botoes-formulario">
+
+        <a
+            href="/estoque"
+            class="botao-secundario"
+        >
+            ← Voltar
+        </a>
+
+        <button
+            type="submit"
+            class="botao"
+        >
+            ✓ Salvar alterações
+        </button>
+
+    </div>
+
+</form>
+=======
 </html>
+>>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767

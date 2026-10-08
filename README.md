@@ -1,23 +1,23 @@
-# 🌱 AgroControle: Defensivos e Rastreabilidade Ambiental
+# AgroControle: Defensivos e Rastreabilidade Ambiental
 
-## 🌐 Aplicação Online
+##  Aplicação Online
 
 https://rafaelaoliveiira0101.pythonanywhere.com/
 
-## 📖 Sobre o projeto
+##  Sobre o projeto
 
 O AgroControl é uma aplicação web desenvolvida para auxiliar
 o produtor rural no gerenciamento de defensivos agrícolas,
 controle de estoque, registro de aplicações, rastreabilidade
 e acompanhamento do período de carência.
 
-## 🎯 Objetivo
+##  Objetivo
 
 Auxiliar o produtor rural no controle dos defensivos utilizados
 na propriedade, reduzindo perdas e facilitando o acompanhamento
 das aplicações e da liberação da colheita.
 
-## 🌾 Funcionalidades
+##  Funcionalidades
 
 - Cadastro de defensivos;
 - Controle de estoque;
@@ -28,17 +28,17 @@ das aplicações e da liberação da colheita.
 - Verificação da liberação da colheita;
 - Fluxograma do processo do Agro.
 
-## 👥 Equipe
+##  Equipe
 
 - Maria Eduarda dos S. Celho — @scmadu
 - Mariana V. Schmitt — @marianavschmitt-star
 - Rafaela R. S. Oliveira — @rafaelaoliveiira01-droid
 
-## 👩‍🏫 Orientadora
+##  Orientadora
 
 Profa. Eudoxia Moura
 
-## 🏫 Instituição
+##  Instituição
 
 Intituto Federal de Rôndonia - Campus Ariquemes
 

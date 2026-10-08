@@ -482,7 +482,7 @@ def excluir_defensivo(id):
     conexao.commit()
     conexao.close()
 
-    flash("Defensivo excluído com sucesso! 🗑️", "sucesso")
+    flash("Defensivo excluído com sucesso! ", "sucesso")
 
     return redirect(url_for("estoque"))
 
@@ -1533,7 +1533,7 @@ def excluir_talhao(id):
     conexao.close()
 
     flash(
-        "Talhão excluído com sucesso! 🗑️",
+        "Talhão excluído com sucesso! ",
         "sucesso"
     )
 
@@ -1960,7 +1960,7 @@ def excluir_aplicacao(id):
     conexao.close()
 
     flash(
-        "Aplicação excluída e estoque restaurado! 🗑️",
+        "Aplicação excluída e estoque restaurado! ",
         "sucesso"
     )
 

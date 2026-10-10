@@ -1,163 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
-<<<<<<< HEAD
-        <label>
-             Nome do defensivo *
-        </label>
-=======
     <meta charset="UTF-8">
->>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Defensivo - AgroControl</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
-<<<<<<< HEAD
-        <label>
-             Categoria *
-        </label>
-=======
 <body>
->>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
 
     <div class="pagina-edicao">
-
         <div class="cabecalho-edicao">
-
             <h1>Editar Defensivo</h1>
-
-<<<<<<< HEAD
-            <option value="Inseticida"
-                {% if defensivo.categoria == "Inseticida" %}selected{% endif %}>
-                Inseticida
-            </option>
-
-            <option value="Fungicida"
-                {% if defensivo.categoria == "Fungicida" %}selected{% endif %}>
-                Fungicida
-            </option>
-
-            <option value="Acaricida"
-                {% if defensivo.categoria == "Acaricida" %}selected{% endif %}>
-                Acaricida
-            </option>
-
-            <option value="Fertilizante"
-                {% if defensivo.categoria == "Fertilizante" %}selected{% endif %}>
-                Fertilizante
-            </option>
-
-            <option value="Outro"
-                {% if defensivo.categoria == "Outro" %}selected{% endif %}>
-                Outro
-            </option>
-
-        </select>
-
-    </div>
-
-
-    <div class="campo">
-
-        <label>
-             Fabricante *
-        </label>
-
-        <input
-            type="text"
-            name="fabricante"
-            value="{{ defensivo.fabricante }}"
-            required
-        >
-
-    </div>
-
-
-    <div class="linha">
-
-        <div class="campo">
-
-            <label>
-                 Quantidade *
-            </label>
-
-            <input
-                type="number"
-                name="quantidade"
-                step="0.01"
-                min="0"
-                value="{{ defensivo.estoque }}"
-                required
-            >
-=======
-            <p>
-                Altere os dados do defensivo e salve as alterações.
-            </p>
->>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
-
+            <p>Altere os dados do defensivo e salve as alterações.</p>
         </div>
 
-
+        <!-- Mensagens do sistema -->
         {% with mensagens = get_flashed_messages(with_categories=true) %}
-
-<<<<<<< HEAD
-            <label>
-                 Unidade de medida *
-            </label>
-=======
             {% if mensagens %}
->>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
-
                 {% for categoria, mensagem in mensagens %}
-
                     <div class="mensagem {{ categoria }}">
                         {{ mensagem }}
                     </div>
-
                 {% endfor %}
-
             {% endif %}
-
         {% endwith %}
 
+        <!-- Formulário de edição -->
+        <form method="POST" class="formulario-edicao">
 
-<<<<<<< HEAD
-    <div class="campo">
-
-        <label>
-             Data de validade *
-        </label>
-
-        <input
-            type="date"
-            name="validade"
-            value="{{ defensivo.validade }}"
-            required
-=======
-        <form
-            method="POST"
-            class="formulario-edicao"
->>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
-        >
-
-
-            <!-- NOME -->
-
-            <div class="campo-edicao">
-
-                <label for="nome">
-                     Nome do defensivo
-                </label>
-
+            <div class="campo">
+                <label for="nome">Nome do defensivo:</label>
                 <input
                     type="text"
                     id="nome"
@@ -165,92 +37,40 @@
                     value="{{ defensivo['nome'] }}"
                     required
                 >
-
             </div>
 
-
-            <!-- CATEGORIA -->
-
-<<<<<<< HEAD
-        <label>
-             Período de carência
-        </label>
-=======
-            <div class="campo-edicao">
->>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767
-
-                <label for="categoria">
-                     Categoria
-                </label>
-
-                <select
-                    id="categoria"
-                    name="categoria"
-                    required
-                >
-
-                    <option value="">
-                        Selecione uma categoria
-                    </option>
-
-                    <option
-                        value="Herbicida"
-                        {% if defensivo['categoria'] == 'Herbicida' %}
-                            selected
-                        {% endif %}
-                    >
+            <div class="campo">
+                <label for="categoria">Categoria:</label>
+                <select id="categoria" name="categoria" required>
+                    <option value="Herbicida"
+                        {% if defensivo['categoria'] == 'Herbicida' %}selected{% endif %}>
                         Herbicida
                     </option>
 
-                    <option
-                        value="Fungicida"
-                        {% if defensivo['categoria'] == 'Fungicida' %}
-                            selected
-                        {% endif %}
-                    >
+                    <option value="Fungicida"
+                        {% if defensivo['categoria'] == 'Fungicida' %}selected{% endif %}>
                         Fungicida
                     </option>
 
-                    <option
-                        value="Inseticida"
-                        {% if defensivo['categoria'] == 'Inseticida' %}
-                            selected
-                        {% endif %}
-                    >
+                    <option value="Inseticida"
+                        {% if defensivo['categoria'] == 'Inseticida' %}selected{% endif %}>
                         Inseticida
                     </option>
 
-                    <option
-                        value="Fertilizante"
-                        {% if defensivo['categoria'] == 'Fertilizante' %}
-                            selected
-                        {% endif %}
-                    >
+                    <option value="Fertilizante"
+                        {% if defensivo['categoria'] == 'Fertilizante' %}selected{% endif %}>
                         Fertilizante
                     </option>
 
-                    <option
-                        value="Outro"
-                        {% if defensivo['categoria'] == 'Outro' %}
-                            selected
-                        {% endif %}
-                    >
+                    <option value="Outro"
+                        {% if defensivo['categoria'] == 'Outro' %}selected{% endif %}>
                         Outro
                     </option>
-
                 </select>
-
             </div>
 
-
-            <!-- FABRICANTE -->
-
-            <div class="campo-edicao">
-
-                <label for="fabricante">
-                     Fabricante
-                </label>
-
+            <div class="campo">
+                <label for="fabricante">Fabricante:</label>
                 <input
                     type="text"
                     id="fabricante"
@@ -258,193 +78,81 @@
                     value="{{ defensivo['fabricante'] }}"
                     required
                 >
-
             </div>
 
-
-            <!-- QUANTIDADE -->
-
-            <div class="campo-edicao">
-
-                <label for="quantidade">
-                     Quantidade em estoque
-                </label>
-
+            <div class="campo">
+                <label for="estoque">Quantidade em estoque:</label>
                 <input
                     type="number"
-                    id="quantidade"
-                    name="quantidade"
-                    step="0.01"
+                    id="estoque"
+                    name="estoque"
                     min="0"
+                    step="any"
                     value="{{ defensivo['estoque'] }}"
                     required
                 >
-
             </div>
 
-
-            <!-- UNIDADE -->
-
-            <div class="campo-edicao">
-
-                <label for="unidade">
-                     Unidade de medida
-                </label>
-
-                <select
-                    id="unidade"
-                    name="unidade"
-                    required
-                >
-
-                    <option value="">
-                        Selecione uma unidade
-                    </option>
-
-                    <option
-                        value="Litros (L)"
-                        {% if defensivo['unidade'] == 'Litros (L)' %}
-                            selected
-                        {% endif %}
-                    >
+            <div class="campo">
+                <label for="unidade">Unidade de medida:</label>
+                <select id="unidade" name="unidade" required>
+                    <option value="Litros (L)"
+                        {% if defensivo['unidade'] == 'Litros (L)' %}selected{% endif %}>
                         Litros (L)
                     </option>
 
-                    <option
-                        value="Quilogramas (kg)"
-                        {% if defensivo['unidade'] == 'Quilogramas (kg)' %}
-                            selected
-                        {% endif %}
-                    >
+                    <option value="Quilogramas (kg)"
+                        {% if defensivo['unidade'] == 'Quilogramas (kg)' %}selected{% endif %}>
                         Quilogramas (kg)
                     </option>
 
-                    <option
-                        value="Gramas (g)"
-                        {% if defensivo['unidade'] == 'Gramas (g)' %}
-                            selected
-                        {% endif %}
-                    >
+                    <option value="Gramas (g)"
+                        {% if defensivo['unidade'] == 'Gramas (g)' %}selected{% endif %}>
                         Gramas (g)
                     </option>
 
-                    <option
-                        value="Mililitros (mL)"
-                        {% if defensivo['unidade'] == 'Mililitros (mL)' %}
-                            selected
-                        {% endif %}
-                    >
+                    <option value="Mililitros (mL)"
+                        {% if defensivo['unidade'] == 'Mililitros (mL)' %}selected{% endif %}>
                         Mililitros (mL)
                     </option>
-
                 </select>
-
             </div>
 
-
-            <!-- VALIDADE -->
-
-            <div class="campo-edicao">
-
-                <label for="validade">
-                     Data de validade
-                </label>
-
+            <div class="campo">
+                <label for="validade">Data de validade:</label>
                 <input
                     type="date"
                     id="validade"
                     name="validade"
-                    value="{{ defensivo['validade'] }}"
+                    value="{{ defensivo['validade'] or '' }}"
                     required
                 >
-
             </div>
 
-
-            <!-- CARÊNCIA -->
-
-            <div class="campo-edicao">
-
-                <label for="carencia">
-                     Período de carência
-                </label>
-
-                <div class="campo-com-unidade">
-
-                    <input
-                        type="number"
-                        id="carencia"
-                        name="carencia"
-                        min="0"
-                        value="{{ defensivo['carencia'] }}"
-                        required
-                    >
-
-                    <span>dias</span>
-
-                </div>
-
+            <div class="campo">
+                <label for="carencia">Período de carência (dias):</label>
+                <input
+                    type="number"
+                    id="carencia"
+                    name="carencia"
+                    min="0"
+                    value="{{ defensivo['carencia'] }}"
+                    required
+                >
             </div>
-
-
-            <!-- BOTÕES -->
 
             <div class="botoes-edicao">
-
-                <a
-                    href="{{ url_for('estoque') }}"
-                    class="botao-secundario"
-                >
-                    ← Voltar
+                <a href="{{ url_for('estoque') }}" class="botao-voltar">
+                    Voltar
                 </a>
 
-                <button
-                    type="submit"
-                    class="botao-principal"
-                >
-                    ✓ Salvar alterações
+                <button type="submit" class="botao-salvar">
+                    Salvar alterações
                 </button>
-
             </div>
 
         </form>
-
     </div>
 
 </body>
-
-<<<<<<< HEAD
-    <div class="info">
-
-        <span></span>
-
-        <p>
-            Altere os dados do defensivo e clique em
-            "Salvar alterações".
-        </p>
-
-    </div>
-
-
-    <div class="botoes-formulario">
-
-        <a
-            href="/estoque"
-            class="botao-secundario"
-        >
-            ← Voltar
-        </a>
-
-        <button
-            type="submit"
-            class="botao"
-        >
-            ✓ Salvar alterações
-        </button>
-
-    </div>
-
-</form>
-=======
 </html>
->>>>>>> 74c1966ee8d9c8ffe9ae080043537533c0a69767

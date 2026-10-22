@@ -1,10 +1,24 @@
+
 import os
 import logging
-from logging.handlers import RotatingFileHandler
-
-from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
+
+from logging.handlers import RotatingFileHandler
+from functools import wraps
 from datetime import datetime, timedelta
+
+from flask import (
+    Flask, render_template, request, redirect,
+    url_for, flash, session
+)
+
+from werkzeug.security import (
+    check_password_hash,
+    generate_password_hash
+)
+
+from werkzeug.utils import secure_filename
+
 
 app = Flask(__name__)
 
@@ -13,7 +27,21 @@ app.secret_key = os.environ.get("SECRET_KEY")
 if not app.secret_key:
     raise RuntimeError("Configure a variável SECRET_KEY.")
 
-DATABASE = "banco.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, "banco.db")
+
+UPLOAD_FOLDER = os.path.join("static", "uploads", "perfis")
+
+ALLOWED_EXTENSIONS = {
+    "png",
+    "jpg",
+    "jpeg",
+    "webp"
+}
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Registro de eventos para segurança
 os.makedirs("logs", exist_ok=True)
@@ -33,119 +61,93 @@ app.logger.addHandler(arquivo_log)
 app.logger.setLevel(logging.INFO)
 app.logger.info("Sistema AgroControl iniciado")
 
-# ==========================================
-# CONEXÃO COM O BANCO
-# ==========================================
+# =========================================================
+# BANCO DE DADOS
+# =========================================================
 
 def conectar_banco():
 
-    conexao = sqlite3.connect(DATABASE)
+    conn = sqlite3.connect(DATABASE)
 
-    conexao.row_factory = sqlite3.Row
+    conn.row_factory = sqlite3.Row
 
-    return conexao
+    conn.execute("PRAGMA foreign_keys = ON")
 
+    return conn
 
-# ==========================================
-# CRIAÇÃO E ATUALIZAÇÃO DO BANCO
-# ==========================================
 
 def criar_banco():
 
-    conexao = conectar_banco()
+    conn = conectar_banco()
 
-    cursor = conexao.cursor()
+    cur = conn.cursor()
 
+    # =====================================================
+    # DEFENSIVOS
+    # =====================================================
 
-    # ======================================
-    # TABELA DE DEFENSIVOS
-    # ======================================
-
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS defensivos (
 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
 
             nome TEXT NOT NULL,
 
-            carencia INTEGER NOT NULL,
+            carencia INTEGER NOT NULL DEFAULT 0,
 
-            estoque REAL NOT NULL
+            estoque REAL NOT NULL DEFAULT 0,
 
+            categoria TEXT,
+
+            fabricante TEXT,
+
+            unidade TEXT,
+
+            validade TEXT
         )
     """)
 
-
-    # ======================================
-    # VERIFICA NOVAS COLUNAS
-    # ======================================
-
-    colunas = conexao.execute(
-        "PRAGMA table_info(defensivos)"
-    ).fetchall()
-
-
-    nomes_colunas = [
-
-        coluna["name"]
-
-        for coluna in colunas
-
+    # Compatibilidade com bancos antigos
+    colunas_defensivos = [
+        row["name"]
+        for row in cur.execute(
+            "PRAGMA table_info(defensivos)"
+        ).fetchall()
     ]
 
+    novas_colunas_defensivos = [
+        ("categoria", "TEXT"),
+        ("fabricante", "TEXT"),
+        ("unidade", "TEXT"),
+        ("validade", "TEXT")
+    ]
 
-    if "categoria" not in nomes_colunas:
+    for coluna, tipo in novas_colunas_defensivos:
 
-        conexao.execute("""
-            ALTER TABLE defensivos
-            ADD COLUMN categoria TEXT
-        """)
+        if coluna not in colunas_defensivos:
 
+            cur.execute(
+                f"ALTER TABLE defensivos ADD COLUMN {coluna} {tipo}"
+            )
 
-    if "fabricante" not in nomes_colunas:
+    # =====================================================
+    # TALHÕES
+    # =====================================================
 
-        conexao.execute("""
-            ALTER TABLE defensivos
-            ADD COLUMN fabricante TEXT
-        """)
-
-
-    if "unidade" not in nomes_colunas:
-
-        conexao.execute("""
-            ALTER TABLE defensivos
-            ADD COLUMN unidade TEXT
-        """)
-
-
-    if "validade" not in nomes_colunas:
-
-        conexao.execute("""
-            ALTER TABLE defensivos
-            ADD COLUMN validade TEXT
-        """)
-
-
-    # ======================================
-    # TABELA DE TALHÕES
-    # ======================================
-
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS talhoes (
 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
 
             nome TEXT NOT NULL
-
         )
     """)
 
+    # =====================================================
+    # APLICAÇÕES
+    # =====================================================
 
-    # ======================================
-    # TABELA DE APLICAÇÕES
-    # ======================================
-
-    cursor.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS aplicacoes (
 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -160,821 +162,314 @@ def criar_banco():
 
             responsavel TEXT NOT NULL,
 
-            data_liberacao TEXT NOT NULL,
+            data_liberacao TEXT,
 
             FOREIGN KEY (defensivo_id)
-                REFERENCES defensivos(id),
+                REFERENCES defensivos(id)
+                ON DELETE CASCADE,
 
             FOREIGN KEY (talhao_id)
                 REFERENCES talhoes(id)
-
+                ON DELETE CASCADE
         )
     """)
 
+    # =====================================================
+    # USUÁRIOS
+    # =====================================================
 
-    # ======================================
-    # DEFENSIVOS DE EXEMPLO
-    # ======================================
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
 
-    quantidade_defensivos = cursor.execute(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            nome TEXT NOT NULL,
+
+            email TEXT NOT NULL UNIQUE,
+
+            senha TEXT NOT NULL,
+
+            foto TEXT,
+
+            nota TEXT,
+
+            criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # =====================================================
+    # COMPATIBILIDADE COM BANCO ANTIGO - USUÁRIOS
+    # =====================================================
+
+    colunas_usuarios = [
+        row["name"]
+        for row in cur.execute(
+            "PRAGMA table_info(usuarios)"
+        ).fetchall()
+    ]
+
+    novas_colunas_usuarios = [
+        ("nome", "TEXT"),
+        ("email", "TEXT"),
+        ("senha", "TEXT"),
+        ("foto", "TEXT"),
+        ("nota", "TEXT"),
+        ("criado_em", "TEXT")
+    ]
+
+    for coluna, tipo in novas_colunas_usuarios:
+
+        if coluna not in colunas_usuarios:
+
+            cur.execute(
+                f"ALTER TABLE usuarios ADD COLUMN {coluna} {tipo}"
+            )
+
+    # =====================================================
+    # DADOS INICIAIS DOS DEFENSIVOS
+    # =====================================================
+
+    quantidade_defensivos = cur.execute(
         "SELECT COUNT(*) FROM defensivos"
     ).fetchone()[0]
 
-
     if quantidade_defensivos == 0:
 
-        cursor.execute("""
+        cur.executemany("""
             INSERT INTO defensivos
             (
                 nome,
                 carencia,
-                estoque
+                estoque,
+                categoria,
+                fabricante,
+                unidade,
+                validade
             )
 
-            VALUES
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, [
 
             (
-                'Defensivo VerdeMax',
+                "Glifosato",
                 14,
-                100
+                100,
+                "Herbicida",
+                "AgroQuímica",
+                "Litros (L)",
+                "2027-12-31"
             ),
 
             (
-                'Defensivo AgroSafe',
+                "Fungicida X",
                 7,
-                80
+                50,
+                "Fungicida",
+                "Campo Forte",
+                "Litros (L)",
+                "2027-08-30"
             ),
 
             (
-                'Defensivo Campo Forte',
-                21,
-                120
+                "Inseticida Y",
+                10,
+                30,
+                "Inseticida",
+                "RuralTech",
+                "Litros (L)",
+                "2027-06-15"
             )
-        """)
+        ])
 
+    # =====================================================
+    # TALHÕES INICIAIS
+    # =====================================================
 
-    # ======================================
-    # TALHÕES DE EXEMPLO
-    # ======================================
-
-    quantidade_talhoes = cursor.execute(
+    quantidade_talhoes = cur.execute(
         "SELECT COUNT(*) FROM talhoes"
     ).fetchone()[0]
 
-
     if quantidade_talhoes == 0:
 
-        cursor.execute("""
-            INSERT INTO talhoes
-            (
-                nome
+        cur.executemany(
+            "INSERT INTO talhoes (nome) VALUES (?)",
+            [
+                ("Talhão A",),
+                ("Talhão B",),
+                ("Talhão C",)
+            ]
+        )
+
+    conn.commit()
+
+    conn.close()
+
+
+# =========================================================
+# USUÁRIO LOGADO
+# =========================================================
+
+def usuario_atual():
+
+    usuario_id = session.get("usuario_id")
+
+    if not usuario_id:
+        return None
+
+    conn = conectar_banco()
+
+    usuario = conn.execute(
+        "SELECT * FROM usuarios WHERE id = ?",
+        (usuario_id,)
+    ).fetchone()
+
+    conn.close()
+
+    return usuario
+
+
+# =========================================================
+# VARIÁVEIS DISPONÍVEIS EM TODOS OS HTMLS
+# =========================================================
+
+@app.context_processor
+def contexto_global():
+
+    return {
+        "usuario_logado": usuario_atual(),
+        "now_date": datetime.now().strftime("%Y-%m-%d")
+    }
+
+
+# =========================================================
+# PROTEÇÃO DAS PÁGINAS
+# =========================================================
+
+def login_required(view):
+
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+
+        if not session.get("usuario_id"):
+
+            flash(
+                "Faça login para acessar o AgroControle.",
+                "erro"
             )
 
-            VALUES
+            return redirect(
+                url_for(
+                    "login",
+                    proxima=request.path
+                )
+            )
 
-            ('Talhão 01'),
+        return view(*args, **kwargs)
 
-            ('Talhão 02'),
+    return wrapped
 
-            ('Talhão 03')
-        """)
 
+# =========================================================
+# EXTENSÃO DE FOTO
+# =========================================================
 
-    conexao.commit()
+def extensao_permitida(nome):
 
-    conexao.close()
-
-
-# ==========================================
-# PÁGINA INICIAL
-# ==========================================
-
-@app.route("/")
-def index():
-
-    conexao = conectar_banco()
-
-
-    defensivos = conexao.execute("""
-        SELECT *
-        FROM defensivos
-        ORDER BY nome
-    """).fetchall()
-
-
-    aplicacoes = conexao.execute("""
-        SELECT
-
-            aplicacoes.*,
-
-            defensivos.nome AS defensivo,
-
-            talhoes.nome AS talhao,
-
-            defensivos.carencia
-
-        FROM aplicacoes
-
-        INNER JOIN defensivos
-
-            ON aplicacoes.defensivo_id = defensivos.id
-
-        INNER JOIN talhoes
-
-            ON aplicacoes.talhao_id = talhoes.id
-
-        ORDER BY aplicacoes.id DESC
-
-    """).fetchall()
-
-
-    conexao.close()
-
-
-    hoje = datetime.now().date()
-
-
-    dados_aplicacoes = []
-
-
-    for aplicacao in aplicacoes:
-
-        data_liberacao = datetime.strptime(
-            aplicacao["data_liberacao"],
-            "%Y-%m-%d"
-        ).date()
-
-
-        if hoje < data_liberacao:
-
-            status = "aguardando"
-
-            mensagem = "Colheita ainda não liberada"
-
-        else:
-
-            status = "liberada"
-
-            mensagem = "Colheita liberada"
-
-
-        dados_aplicacoes.append({
-
-            "id": aplicacao["id"],
-
-            "defensivo": aplicacao["defensivo"],
-
-            "talhao": aplicacao["talhao"],
-
-            "data_aplicacao":
-                aplicacao["data_aplicacao"],
-
-            "quantidade":
-                aplicacao["quantidade"],
-
-            "responsavel":
-                aplicacao["responsavel"],
-
-            "data_liberacao":
-                aplicacao["data_liberacao"],
-
-            "status": status,
-
-            "mensagem": mensagem
-
-        })
-
-
-    return render_template(
-
-        "index.html",
-
-        defensivos=defensivos,
-
-        aplicacoes=dados_aplicacoes
-
-    )
-
-# ==========================================
-# EDITAR DEFENSIVO
-# ==========================================
-
-@app.route("/editar-defensivo/<int:id>", methods=["GET", "POST"])
-def editar_defensivo(id):
-
-    conexao = conectar_banco()
-
-    defensivo = conexao.execute("""
-        SELECT *
-        FROM defensivos
-        WHERE id = ?
-    """, (id,)).fetchone()
-
-    if defensivo is None:
-        conexao.close()
-        flash("Defensivo não encontrado!", "erro")
-        return redirect(url_for("estoque"))
-
-    if request.method == "POST":
-
-        nome = request.form.get("nome", "").strip()
-        categoria = request.form.get("categoria", "").strip()
-        fabricante = request.form.get("fabricante", "").strip()
-        quantidade = request.form.get("quantidade", "").strip()
-        unidade = request.form.get("unidade", "").strip()
-        validade = request.form.get("validade", "").strip()
-        carencia = request.form.get("carencia", "0").strip()
-
-        if not nome or not categoria or not fabricante or not quantidade or not unidade or not validade:
-            flash("Preencha todos os campos obrigatórios!", "erro")
-            conexao.close()
-            return redirect(url_for("editar_defensivo", id=id))
-
-        try:
-            quantidade = float(quantidade)
-
-            if quantidade < 0:
-                flash("A quantidade não pode ser negativa!", "erro")
-                conexao.close()
-                return redirect(url_for("editar_defensivo", id=id))
-
-        except ValueError:
-            flash("Informe uma quantidade válida!", "erro")
-            conexao.close()
-            return redirect(url_for("editar_defensivo", id=id))
-
-        try:
-            carencia = int(carencia)
-
-            if carencia < 0:
-                flash("A carência não pode ser negativa!", "erro")
-                conexao.close()
-                return redirect(url_for("editar_defensivo", id=id))
-
-        except ValueError:
-            flash("Informe uma carência válida!", "erro")
-            conexao.close()
-            return redirect(url_for("editar_defensivo", id=id))
-
-        try:
-            datetime.strptime(validade, "%Y-%m-%d").date()
-
-        except ValueError:
-            flash("Informe uma data de validade válida!", "erro")
-            conexao.close()
-            return redirect(url_for("editar_defensivo", id=id))
-
-        conexao.execute("""
-            UPDATE defensivos
-            SET
-                nome = ?,
-                categoria = ?,
-                fabricante = ?,
-                estoque = ?,
-                unidade = ?,
-                validade = ?,
-                carencia = ?
-            WHERE id = ?
-        """, (
-            nome,
-            categoria,
-            fabricante,
-            quantidade,
-            unidade,
-            validade,
-            carencia,
-            id
-        ))
-
-        conexao.commit()
-        conexao.close()
-
-        flash("Defensivo atualizado com sucesso! 🌱", "sucesso")
-
-        return redirect(url_for("estoque"))
-
-    conexao.close()
-
-    return render_template(
-        "editar_defensivo.html",
-        defensivo=defensivo
+    return (
+        "." in nome
+        and
+        nome.rsplit(".", 1)[1].lower()
+        in ALLOWED_EXTENSIONS
     )
 
 
-# ==========================================
-# EXCLUIR DEFENSIVO
-# ==========================================
+# =========================================================
+# LOGIN
+# =========================================================
 
-@app.route("/excluir-defensivo/<int:id>", methods=["POST"])
-def excluir_defensivo(id):
+@app.route("/login", methods=["GET", "POST"])
+def login():
 
-    conexao = conectar_banco()
-
-    defensivo = conexao.execute("""
-        SELECT *
-        FROM defensivos
-        WHERE id = ?
-    """, (id,)).fetchone()
-
-    if defensivo is None:
-        conexao.close()
-        flash("Defensivo não encontrado!", "erro")
-        return redirect(url_for("estoque"))
-
-    aplicacoes = conexao.execute("""
-        SELECT COUNT(*)
-        FROM aplicacoes
-        WHERE defensivo_id = ?
-    """, (id,)).fetchone()[0]
-
-    if aplicacoes > 0:
-        conexao.close()
-
-        flash(
-            "Não é possível excluir este defensivo porque existem aplicações registradas para ele!",
-            "erro"
-        )
-
-        return redirect(url_for("estoque"))
-
-    conexao.execute("""
-        DELETE FROM defensivos
-        WHERE id = ?
-    """, (id,))
-
-    conexao.commit()
-    conexao.close()
-
-    flash("Defensivo excluído com sucesso! 🗑️", "sucesso")
-
-    return redirect(url_for("estoque"))
-
-
-#==================
-# ROTA DASHBOARD
-#==================
-@app.route("/dashboard")
-def dashboard():
-
-    conexao = conectar_banco()
-
-    # ======================================
-    # ISSUE #19 - BUSCAR MÉTRICAS
-    # ======================================
-
-    # Total de defensivos cadastrados
-    total_produtos = conexao.execute("""
-        SELECT COUNT(*)
-        FROM defensivos
-    """).fetchone()[0]
-
-    # Total de aplicações registradas
-    total_aplicacoes = conexao.execute("""
-        SELECT COUNT(*)
-        FROM aplicacoes
-    """).fetchone()[0]
-
-    # Quantidade total disponível no estoque
-    total_estoque = conexao.execute("""
-        SELECT COALESCE(SUM(estoque), 0)
-        FROM defensivos
-    """).fetchone()[0]
-
-    # Aplicações que ainda estão em período de carência
-    hoje = datetime.now().date()
-
-    aplicacoes_carencia = conexao.execute("""
-        SELECT COUNT(*)
-        FROM aplicacoes
-        WHERE data_liberacao > ?
-    """, (
-        hoje.strftime("%Y-%m-%d"),
-    )).fetchone()[0]
-
-
-    # ======================================
-    # ISSUE #20 - ENVIAR DADOS PARA O HTML
-    # ======================================
-
-    return render_template(
-        "dashboard.html",
-
-        total_produtos=total_produtos,
-
-        total_aplicacoes=total_aplicacoes,
-
-        total_estoque=total_estoque,
-
-        aplicacoes_carencia=aplicacoes_carencia
-    )
-# ==========================================
-# CADASTRO DE APLICAÇÃO
-# ==========================================
-
-@app.route(
-    "/cadastro",
-    methods=["GET", "POST"]
-)
-def cadastro():
-
-    conexao = conectar_banco()
-
-
-    defensivos = conexao.execute("""
-        SELECT *
-        FROM defensivos
-        ORDER BY nome
-    """).fetchall()
-
-
-    talhoes = conexao.execute("""
-        SELECT *
-        FROM talhoes
-        ORDER BY nome
-    """).fetchall()
-
-
-    if request.method == "POST":
-
-        try:
-
-            defensivo_id = request.form[
-                "defensivo_id"
-            ]
-
-            talhao_id = request.form[
-                "talhao_id"
-            ]
-
-            data_aplicacao = request.form[
-                "data_aplicacao"
-            ]
-
-            quantidade = float(
-                request.form["quantidade"]
-            )
-
-            responsavel = request.form[
-                "responsavel"
-            ].strip()
-
-
-        except (KeyError, ValueError):
-
-            flash(
-                "Preencha corretamente todos os campos!",
-                "erro"
-            )
-
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro")
-            )
-
-
-        # ==================================
-        # VALIDAÇÃO
-        # ==================================
-
-        if not data_aplicacao:
-
-            flash(
-                "Informe a data da aplicação!",
-                "erro"
-            )
-
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro")
-            )
-
-
-        if not responsavel:
-
-            flash(
-                "Informe o responsável pela aplicação!",
-                "erro"
-            )
-
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro")
-            )
-
-
-        if quantidade <= 0:
-
-            flash(
-                "Informe uma quantidade maior que zero!",
-                "erro"
-            )
-
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro")
-            )
-
-
-        # ==================================
-        # BUSCA DEFENSIVO
-        # ==================================
-
-        defensivo = conexao.execute(
-            """
-            SELECT *
-            FROM defensivos
-            WHERE id = ?
-            """,
-            (defensivo_id,)
-        ).fetchone()
-
-
-        if defensivo is None:
-
-            flash(
-                "Defensivo não encontrado!",
-                "erro"
-            )
-
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro")
-            )
-
-
-        # ==================================
-        # VERIFICA ESTOQUE
-        # ==================================
-
-        if quantidade > defensivo["estoque"]:
-
-            flash(
-                "Quantidade maior que o estoque disponível!",
-                "erro"
-            )
-
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro")
-            )
-
-
-        # ==================================
-        # CALCULA CARÊNCIA
-        # ==================================
-
-        try:
-
-            data = datetime.strptime(
-                data_aplicacao,
-                "%Y-%m-%d"
-            ).date()
-
-        except ValueError:
-
-            flash(
-                "Data da aplicação inválida!",
-                "erro"
-            )
-
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro")
-            )
-
-
-        data_liberacao = data + timedelta(
-
-            days=defensivo["carencia"]
-
-        )
-
-
-        # ==================================
-        # SALVA APLICAÇÃO
-        # ==================================
-
-        conexao.execute("""
-            INSERT INTO aplicacoes
-            (
-                defensivo_id,
-
-                talhao_id,
-
-                data_aplicacao,
-
-                quantidade,
-
-                responsavel,
-
-                data_liberacao
-            )
-
-            VALUES (?, ?, ?, ?, ?, ?)
-
-        """, (
-
-            defensivo_id,
-
-            talhao_id,
-
-            data_aplicacao,
-
-            quantidade,
-
-            responsavel,
-
-            data_liberacao.strftime(
-                "%Y-%m-%d"
-            )
-
-        ))
-
-
-        # ==================================
-        # DESCONTA DO ESTOQUE
-        # ==================================
-
-        novo_estoque = (
-
-            defensivo["estoque"]
-
-            - quantidade
-
-        )
-
-
-        conexao.execute("""
-            UPDATE defensivos
-
-            SET estoque = ?
-
-            WHERE id = ?
-
-        """, (
-
-            novo_estoque,
-
-            defensivo_id
-
-        ))
-
-
-        conexao.commit()
-
-        conexao.close()
-
-
-        flash(
-            "Aplicação registrada e estoque atualizado!",
-            "sucesso"
-        )
-
+    if session.get("usuario_id"):
 
         return redirect(
             url_for("index")
         )
 
+    if request.method == "POST":
 
-    conexao.close()
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
 
+        senha = request.form.get(
+            "senha",
+            ""
+        )
+
+        conn = conectar_banco()
+
+        usuario = conn.execute(
+            """
+            SELECT *
+            FROM usuarios
+            WHERE email = ?
+            """,
+            (email,)
+        ).fetchone()
+
+        conn.close()
+
+        if (
+            not usuario
+            or
+            not check_password_hash(
+                usuario["senha"],
+                senha
+            )
+        ):
+
+            flash(
+                "E-mail ou senha incorretos.",
+                "erro"
+            )
+
+            return render_template(
+                "login.html"
+            )
+
+        session["usuario_id"] = usuario["id"]
+
+        flash(
+            f"Bem-vinda, {usuario['nome']}!",
+            "sucesso"
+        )
+
+        return redirect(
+            url_for("index")
+        )
 
     return render_template(
-
-        "cadastro.html",
-
-        defensivos=defensivos,
-
-        talhoes=talhoes
-
+        "login.html"
     )
 
 
-# ==========================================
-# ESTOQUE
-# ==========================================
-
-@app.route("/estoque")
-def estoque():
-
-    conexao = conectar_banco()
-
-
-    defensivos = conexao.execute("""
-        SELECT *
-        FROM defensivos
-        ORDER BY nome
-    """).fetchall()
-
-
-    conexao.close()
-
-
-    hoje = datetime.now().date()
-
-
-    produtos = []
-
-
-    for defensivo in defensivos:
-
-        validade = defensivo["validade"]
-
-
-        status_validade = "normal"
-
-        mensagem_validade = ""
-
-
-        if validade:
-
-            try:
-
-                data_validade = datetime.strptime(
-                    validade,
-                    "%Y-%m-%d"
-                ).date()
-
-
-                if data_validade < hoje:
-
-                    status_validade = "vencido"
-
-                    mensagem_validade = (
-                        "Produto vencido!"
-                    )
-
-
-                elif (
-                    data_validade - hoje
-                ).days <= 30:
-
-                    status_validade = "proximo"
-
-                    mensagem_validade = (
-                        "Produto próximo do vencimento."
-                    )
-
-
-            except ValueError:
-
-                status_validade = "normal"
-
-
-        produtos.append({
-
-            "id": defensivo["id"],
-
-            "nome": defensivo["nome"],
-
-            "categoria": defensivo["categoria"],
-
-            "fabricante": defensivo["fabricante"],
-
-            "estoque": defensivo["estoque"],
-
-            "unidade": defensivo["unidade"],
-
-            "validade": defensivo["validade"],
-
-            "carencia": defensivo["carencia"],
-
-            "status_validade": status_validade,
-
-            "mensagem_validade":
-                mensagem_validade
-
-        })
-
-
-    return render_template(
-
-        "estoque.html",
-
-        defensivos=produtos
-
-    )
-
-
-# ==========================================
-# CADASTRO DE PRODUTO
-# ==========================================
+# =========================================================
+# CADASTRO DE USUÁRIO
+# =========================================================
 
 @app.route(
-    "/cadastro-produto",
+    "/cadastro-usuario",
     methods=["GET", "POST"]
 )
-def cadastro_produto():
+def cadastro_usuario():
 
-    conexao = conectar_banco()
+    if session.get("usuario_id"):
 
+        return redirect(
+            url_for("index")
+        )
 
     if request.method == "POST":
 
@@ -983,72 +478,780 @@ def cadastro_produto():
             ""
         ).strip()
 
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
+
+        senha = request.form.get(
+            "senha",
+            ""
+        )
+
+        confirmar = request.form.get(
+            "confirmar_senha",
+            ""
+        )
+
+        if not nome or not email or not senha:
+
+            flash(
+                "Preencha todos os campos.",
+                "erro"
+            )
+
+            return render_template(
+                "cadastro_usuario.html"
+            )
+
+        if senha != confirmar:
+
+            flash(
+                "As senhas não coincidem.",
+                "erro"
+            )
+
+            return render_template(
+                "cadastro_usuario.html"
+            )
+
+        if len(senha) < 6:
+
+            flash(
+                "A senha deve ter pelo menos 6 caracteres.",
+                "erro"
+            )
+
+            return render_template(
+                "cadastro_usuario.html"
+            )
+
+        conn = conectar_banco()
+
+        try:
+
+            cursor = conn.execute(
+                """
+                INSERT INTO usuarios
+                (
+                    nome,
+                    email,
+                    senha
+                )
+
+                VALUES (?, ?, ?)
+                """,
+                (
+                    nome,
+                    email,
+                    generate_password_hash(senha)
+                )
+            )
+
+            conn.commit()
+
+            session["usuario_id"] = cursor.lastrowid
+
+            flash(
+                "Cadastro realizado com sucesso!",
+                "sucesso"
+            )
+
+            return redirect(
+                url_for("index")
+            )
+
+        except sqlite3.IntegrityError:
+
+            flash(
+                "Este e-mail já está cadastrado.",
+                "erro"
+            )
+
+        finally:
+
+            conn.close()
+
+    return render_template(
+        "cadastro_usuario.html"
+    )
+
+
+# =========================================================
+# LOGOUT
+# =========================================================
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    flash(
+        "Você saiu da conta.",
+        "sucesso"
+    )
+
+    return redirect(
+        url_for("login")
+    )
+
+
+# =========================================================
+# MEU PERFIL
+# =========================================================
+
+@app.route("/perfil")
+@login_required
+def perfil():
+
+    usuario = usuario_atual()
+
+    return render_template(
+        "perfil.html",
+        usuario=usuario
+    )
+
+
+# =========================================================
+# EDITAR MEU PERFIL
+# =========================================================
+
+@app.route(
+    "/editar-perfil",
+    methods=["GET", "POST"]
+)
+@login_required
+def editar_perfil():
+
+    usuario = usuario_atual()
+
+    if request.method == "POST":
+
+        nome = request.form.get(
+            "nome",
+            ""
+        ).strip()
+
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
+
+        # Esta nota pertence somente ao usuário logado.
+        nota = request.form.get(
+            "nota",
+            ""
+        ).strip()
+
+        senha = request.form.get(
+            "senha",
+            ""
+        )
+
+        foto = request.files.get(
+            "foto"
+        )
+
+        if not nome or not email:
+
+            flash(
+                "Nome e e-mail são obrigatórios.",
+                "erro"
+            )
+
+            return render_template(
+                "editar_perfil.html",
+                usuario=usuario
+            )
+
+        conn = conectar_banco()
+
+        existente = conn.execute(
+            """
+            SELECT id
+            FROM usuarios
+            WHERE email = ?
+            AND id != ?
+            """,
+            (
+                email,
+                usuario["id"]
+            )
+        ).fetchone()
+
+        if existente:
+
+            conn.close()
+
+            flash(
+                "Este e-mail já pertence a outro usuário.",
+                "erro"
+            )
+
+            return render_template(
+                "editar_perfil.html",
+                usuario=usuario
+            )
+
+        nome_foto = usuario["foto"]
+
+        # =================================================
+        # FOTO DE PERFIL
+        # =================================================
+
+        if foto and foto.filename:
+
+            if not extensao_permitida(
+                foto.filename
+            ):
+
+                conn.close()
+
+                flash(
+                    "Formato de foto não permitido. "
+                    "Use PNG, JPG, JPEG ou WEBP.",
+                    "erro"
+                )
+
+                return render_template(
+                    "editar_perfil.html",
+                    usuario=usuario
+                )
+
+            nome_seguro = secure_filename(
+                foto.filename
+            )
+
+            nome_foto = (
+                f"usuario_"
+                f"{usuario['id']}_"
+                f"{int(datetime.now().timestamp())}_"
+                f"{nome_seguro}"
+            )
+
+            caminho_foto = os.path.join(
+                app.config["UPLOAD_FOLDER"],
+                nome_foto
+            )
+
+            foto.save(
+                caminho_foto
+            )
+
+        # =================================================
+        # ALTERAR SENHA
+        # =================================================
+
+        if senha:
+
+            if len(senha) < 6:
+
+                conn.close()
+
+                flash(
+                    "A nova senha deve ter pelo menos 6 caracteres.",
+                    "erro"
+                )
+
+                return render_template(
+                    "editar_perfil.html",
+                    usuario=usuario
+                )
+
+            conn.execute(
+                """
+                UPDATE usuarios
+
+                SET
+                    nome = ?,
+                    email = ?,
+                    senha = ?,
+                    foto = ?,
+                    nota = ?
+
+                WHERE id = ?
+                """,
+                (
+                    nome,
+                    email,
+                    generate_password_hash(senha),
+                    nome_foto,
+                    nota,
+                    usuario["id"]
+                )
+            )
+
+        else:
+
+            conn.execute(
+                """
+                UPDATE usuarios
+
+                SET
+                    nome = ?,
+                    email = ?,
+                    foto = ?,
+                    nota = ?
+
+                WHERE id = ?
+                """,
+                (
+                    nome,
+                    email,
+                    nome_foto,
+                    nota,
+                    usuario["id"]
+                )
+            )
+
+        conn.commit()
+
+        conn.close()
+
+        flash(
+            "Perfil atualizado com sucesso.",
+            "sucesso"
+        )
+
+        return redirect(
+            url_for("perfil")
+        )
+
+    return render_template(
+        "editar_perfil.html",
+        usuario=usuario
+    )
+
+
+# =========================================================
+# EXCLUIR MEU PERFIL
+# =========================================================
+
+@app.route(
+    "/excluir-perfil",
+    methods=["POST"]
+)
+@login_required
+def excluir_perfil():
+
+    usuario = usuario_atual()
+
+    conn = conectar_banco()
+
+    conn.execute(
+        """
+        DELETE FROM usuarios
+        WHERE id = ?
+        """,
+        (usuario["id"],)
+    )
+
+    conn.commit()
+
+    conn.close()
+
+    session.clear()
+
+    flash(
+        "Seu perfil foi excluído.",
+        "sucesso"
+    )
+
+    return redirect(
+        url_for("cadastro_usuario")
+    )
+
+
+# =========================================================
+# LISTA DE USUÁRIOS
+# =========================================================
+# IMPORTANTE:
+# Esta página mostra apenas os usuários cadastrados.
+# A nota NÃO é enviada para o HTML.
+# =========================================================
+
+@app.route("/usuarios")
+@login_required
+def usuarios():
+
+    conn = conectar_banco()
+
+    lista = conn.execute(
+        """
+        SELECT
+            id,
+            nome,
+            email,
+            foto,
+            criado_em
+
+        FROM usuarios
+
+        ORDER BY nome
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "usuarios.html",
+        usuarios=lista
+    )
+
+
+# =========================================================
+# PÁGINA INICIAL
+# =========================================================
+
+@app.route("/")
+@login_required
+def index():
+
+    conn = conectar_banco()
+
+    defensivos = conn.execute(
+        """
+        SELECT *
+        FROM defensivos
+        ORDER BY nome
+        """
+    ).fetchall()
+
+    total_defensivos = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM defensivos
+        """
+    ).fetchone()[0]
+
+    estoque_total = conn.execute(
+        """
+        SELECT COALESCE(SUM(estoque), 0)
+        FROM defensivos
+        """
+    ).fetchone()[0]
+
+    conn.close()
+
+    return render_template(
+        "index.html",
+        defensivos=defensivos,
+        total_defensivos=total_defensivos,
+        estoque_total=estoque_total
+    )
+
+
+# =========================================================
+# DASHBOARD
+# =========================================================
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+
+    conn = conectar_banco()
+
+    total_defensivos = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM defensivos
+        """
+    ).fetchone()[0]
+
+    total_talhoes = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM talhoes
+        """
+    ).fetchone()[0]
+
+    total_aplicacoes = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM aplicacoes
+        """
+    ).fetchone()[0]
+
+    estoque_total = conn.execute(
+        """
+        SELECT COALESCE(SUM(estoque), 0)
+        FROM defensivos
+        """
+    ).fetchone()[0]
+
+    baixo_estoque = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM defensivos
+        WHERE estoque < 20
+        """
+    ).fetchone()[0]
+
+    conn.close()
+
+    return render_template(
+        "dashboard.html",
+        total_defensivos=total_defensivos,
+        total_talhoes=total_talhoes,
+        total_aplicacoes=total_aplicacoes,
+        estoque_total=estoque_total,
+        baixo_estoque=baixo_estoque
+    )
+
+
+# =========================================================
+# ESTOQUE
+# =========================================================
+
+@app.route("/estoque")
+@login_required
+def estoque():
+
+    conn = conectar_banco()
+
+    defensivos = conn.execute(
+        """
+        SELECT *
+        FROM defensivos
+        ORDER BY nome
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "estoque.html",
+        defensivos=defensivos
+    )
+
+
+# =========================================================
+# NOVA APLICAÇÃO
+# =========================================================
+
+@app.route(
+    "/cadastro",
+    methods=["GET", "POST"]
+)
+@login_required
+def cadastro():
+
+    conn = conectar_banco()
+
+    defensivos = conn.execute(
+        """
+        SELECT *
+        FROM defensivos
+        ORDER BY nome
+        """
+    ).fetchall()
+
+    talhoes = conn.execute(
+        """
+        SELECT *
+        FROM talhoes
+        ORDER BY nome
+        """
+    ).fetchall()
+
+    if request.method == "POST":
+
+        defensivo_id = request.form.get(
+            "defensivo_id"
+        )
+
+        talhao_id = request.form.get(
+            "talhao_id"
+        )
+
+        data_aplicacao = request.form.get(
+            "data_aplicacao"
+        )
+
+        quantidade = request.form.get(
+            "quantidade"
+        )
+
+        responsavel = request.form.get(
+            "responsavel",
+            ""
+        ).strip()
+
+        try:
+
+            quantidade_num = float(
+                quantidade
+            )
+
+        except (TypeError, ValueError):
+
+            quantidade_num = -1
+
+        defensivo = conn.execute(
+            """
+            SELECT *
+            FROM defensivos
+            WHERE id = ?
+            """,
+            (defensivo_id,)
+        ).fetchone()
+
+        if (
+            not defensivo
+            or quantidade_num <= 0
+            or not data_aplicacao
+            or not responsavel
+        ):
+
+            conn.close()
+
+            flash(
+                "Preencha os dados corretamente.",
+                "erro"
+            )
+
+            return render_template(
+                "cadastro.html",
+                defensivos=defensivos,
+                talhoes=talhoes
+            )
+
+        if quantidade_num > defensivo["estoque"]:
+
+            conn.close()
+
+            flash(
+                "A quantidade da aplicação é maior "
+                "que o estoque disponível.",
+                "erro"
+            )
+
+            return render_template(
+                "cadastro.html",
+                defensivos=defensivos,
+                talhoes=talhoes
+            )
+
+        data_liberacao = (
+            datetime.strptime(
+                data_aplicacao,
+                "%Y-%m-%d"
+            )
+            +
+            timedelta(
+                days=int(
+                    defensivo["carencia"] or 0
+                )
+            )
+        ).strftime("%Y-%m-%d")
+
+        conn.execute(
+            """
+            INSERT INTO aplicacoes
+            (
+                defensivo_id,
+                talhao_id,
+                data_aplicacao,
+                quantidade,
+                responsavel,
+                data_liberacao
+            )
+
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                defensivo_id,
+                talhao_id,
+                data_aplicacao,
+                quantidade_num,
+                responsavel,
+                data_liberacao
+            )
+        )
+
+        conn.execute(
+            """
+            UPDATE defensivos
+
+            SET estoque = estoque - ?
+
+            WHERE id = ?
+            """,
+            (
+                quantidade_num,
+                defensivo_id
+            )
+        )
+
+        conn.commit()
+
+        conn.close()
+
+        flash(
+            "Aplicação cadastrada com sucesso.",
+            "sucesso"
+        )
+
+        return redirect(
+            url_for("aplicacoes")
+        )
+
+    conn.close()
+
+    return render_template(
+        "cadastro.html",
+        defensivos=defensivos,
+        talhoes=talhoes
+    )
+
+
+# =========================================================
+# CADASTRO DE DEFENSIVO
+# =========================================================
+
+@app.route(
+    "/cadastro-produto",
+    methods=["GET", "POST"]
+)
+@login_required
+def cadastro_produto():
+
+    if request.method == "POST":
+
+        nome = request.form.get(
+            "nome",
+            ""
+        ).strip()
 
         categoria = request.form.get(
             "categoria",
             ""
         ).strip()
 
-
         fabricante = request.form.get(
             "fabricante",
             ""
         ).strip()
 
-
         quantidade = request.form.get(
             "quantidade",
-            ""
-        ).strip()
-
+            "0"
+        )
 
         unidade = request.form.get(
             "unidade",
             ""
         ).strip()
 
-
         validade = request.form.get(
             "validade",
             ""
-        ).strip()
+        )
 
-
-        # ==================================
-        # CAMPOS OBRIGATÓRIOS
-        # ==================================
-
-        if (
-
-            not nome
-
-            or not categoria
-
-            or not fabricante
-
-            or not quantidade
-
-            or not unidade
-
-            or not validade
-
-        ):
-
-            flash(
-                "Preencha todos os campos obrigatórios!",
-                "erro"
-            )
-
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro_produto")
-            )
-
-
-        # ==================================
-        # QUANTIDADE
-        # ==================================
+        carencia = request.form.get(
+            "carencia",
+            "0"
+        )
 
         try:
 
@@ -1056,377 +1259,763 @@ def cadastro_produto():
                 quantidade
             )
 
-
-            if quantidade <= 0:
-
-                flash(
-                    "A quantidade deve ser maior que zero!",
-                    "erro"
-                )
-
-                conexao.close()
-
-                return redirect(
-                    url_for("cadastro_produto")
-                )
-
+            carencia = int(
+                carencia
+            )
 
         except ValueError:
 
             flash(
-                "Informe uma quantidade válida!",
+                "Quantidade ou carência inválida.",
                 "erro"
             )
 
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro_produto")
+            return render_template(
+                "cadastro_produto.html"
             )
 
-
-        # ==================================
-        # CARÊNCIA
-        # ==================================
-
-        carencia = request.form.get(
-            "carencia",
-            "0"
-        ).strip()
-
-
-        try:
-
-            carencia = int(carencia)
-
-
-            if carencia < 0:
-
-                flash(
-                    "A carência não pode ser negativa!",
-                    "erro"
-                )
-
-                conexao.close()
-
-                return redirect(
-                    url_for("cadastro_produto")
-                )
-
-
-        except ValueError:
+        if (
+            not nome
+            or quantidade < 0
+            or carencia < 0
+        ):
 
             flash(
-                "Informe uma carência válida!",
+                "Preencha os dados obrigatórios corretamente.",
                 "erro"
             )
 
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro_produto")
+            return render_template(
+                "cadastro_produto.html"
             )
 
+        conn = conectar_banco()
 
-        # ==================================
-        # VALIDADE
-        # ==================================
-
-        try:
-
-            datetime.strptime(
-                validade,
-                "%Y-%m-%d"
-            ).date()
-
-
-        except ValueError:
-
-            flash(
-                "Informe uma data de validade válida!",
-                "erro"
-            )
-
-            conexao.close()
-
-            return redirect(
-                url_for("cadastro_produto")
-            )
-
-
-        # ==================================
-        # SALVA NO BANCO
-        # ==================================
-
-        conexao.execute("""
+        conn.execute(
+            """
             INSERT INTO defensivos
             (
                 nome,
-
-                categoria,
-
-                fabricante,
-
+                carencia,
                 estoque,
-
+                categoria,
+                fabricante,
                 unidade,
-
-                validade,
-
-                carencia
-
+                validade
             )
 
             VALUES (?, ?, ?, ?, ?, ?, ?)
-
-        """, (
-
-            nome,
-
-            categoria,
-
-            fabricante,
-
-            quantidade,
-
-            unidade,
-
-            validade,
-
-            carencia
-
-        ))
-
-
-        conexao.commit()
-
-        conexao.close()
-
-
-        flash(
-            "Defensivo cadastrado com sucesso! 🌱",
-            "sucesso"
+            """,
+            (
+                nome,
+                carencia,
+                quantidade,
+                categoria,
+                fabricante,
+                unidade,
+                validade
+            )
         )
 
+        conn.commit()
+
+        conn.close()
+
+        flash(
+            "Defensivo cadastrado com sucesso.",
+            "sucesso"
+        )
 
         return redirect(
             url_for("estoque")
         )
-
-
-    conexao.close()
-
 
     return render_template(
         "cadastro_produto.html"
     )
 
 
-# ==========================================
-# RASTREABILIDADE
-# ==========================================
+# =========================================================
+# EDITAR DEFENSIVO
+# =========================================================
 
-@app.route("/rastreabilidade")
-def rastreabilidade():
+@app.route(
+    "/editar-defensivo/<int:id>",
+    methods=["GET", "POST"]
+)
+@login_required
+def editar_defensivo(id):
 
-    conexao = conectar_banco()
+    conn = conectar_banco()
 
+    defensivo = conn.execute(
+        """
+        SELECT *
+        FROM defensivos
+        WHERE id = ?
+        """,
+        (id,)
+    ).fetchone()
 
-    aplicacoes = conexao.execute("""
-        SELECT
+    if not defensivo:
 
-            aplicacoes.*,
+        conn.close()
 
-            defensivos.nome AS defensivo,
+        flash(
+            "Defensivo não encontrado.",
+            "erro"
+        )
 
-            talhoes.nome AS talhao
+        return redirect(
+            url_for("estoque")
+        )
 
-        FROM aplicacoes
+    if request.method == "POST":
 
-        INNER JOIN defensivos
+        nome = request.form.get(
+            "nome",
+            ""
+        ).strip()
 
-            ON aplicacoes.defensivo_id =
-               defensivos.id
+        categoria = request.form.get(
+            "categoria",
+            ""
+        ).strip()
 
-        INNER JOIN talhoes
+        fabricante = request.form.get(
+            "fabricante",
+            ""
+        ).strip()
 
-            ON aplicacoes.talhao_id =
-               talhoes.id
+        quantidade = request.form.get(
+            "quantidade",
+            "0"
+        )
 
-        ORDER BY
-            aplicacoes.data_aplicacao DESC
+        unidade = request.form.get(
+            "unidade",
+            ""
+        ).strip()
 
-    """).fetchall()
+        validade = request.form.get(
+            "validade",
+            ""
+        )
 
+        carencia = request.form.get(
+            "carencia",
+            "0"
+        )
 
-    conexao.close()
+        try:
 
+            quantidade = float(
+                quantidade
+            )
 
-    hoje = datetime.now().date()
+            carencia = int(
+                carencia
+            )
 
+        except ValueError:
 
-    lista = []
+            conn.close()
 
+            flash(
+                "Quantidade ou carência inválida.",
+                "erro"
+            )
 
-    for aplicacao in aplicacoes:
+            return render_template(
+                "editar_defensivo.html",
+                defensivo=defensivo
+            )
 
-        data_liberacao = datetime.strptime(
-            aplicacao["data_liberacao"],
-            "%Y-%m-%d"
-        ).date()
+        conn.execute(
+            """
+            UPDATE defensivos
 
+            SET
+                nome = ?,
+                categoria = ?,
+                fabricante = ?,
+                estoque = ?,
+                unidade = ?,
+                validade = ?,
+                carencia = ?
 
-        if hoje < data_liberacao:
+            WHERE id = ?
+            """,
+            (
+                nome,
+                categoria,
+                fabricante,
+                quantidade,
+                unidade,
+                validade,
+                carencia,
+                id
+            )
+        )
 
-            status = "aguardando"
+        conn.commit()
 
-        else:
+        conn.close()
 
-            status = "liberada"
+        flash(
+            "Defensivo atualizado com sucesso.",
+            "sucesso"
+        )
 
+        return redirect(
+            url_for("estoque")
+        )
 
-        lista.append({
-
-            "id": aplicacao["id"],
-
-            "defensivo":
-                aplicacao["defensivo"],
-
-            "talhao":
-                aplicacao["talhao"],
-
-            "data_aplicacao":
-                aplicacao["data_aplicacao"],
-
-            "quantidade":
-                aplicacao["quantidade"],
-
-            "responsavel":
-                aplicacao["responsavel"],
-
-            "data_liberacao":
-                aplicacao["data_liberacao"],
-
-            "status": status
-
-        })
-
+    conn.close()
 
     return render_template(
-
-        "rastreabilidade.html",
-
-        aplicacoes=lista
-
+        "editar_defensivo.html",
+        defensivo=defensivo
     )
 
 
-# ==========================================
-# LISTAGEM DE APLICAÇÕES
-# ==========================================
+# =========================================================
+# EXCLUIR DEFENSIVO
+# =========================================================
+
+@app.route(
+    "/excluir-defensivo/<int:id>",
+    methods=["POST"]
+)
+@login_required
+def excluir_defensivo(id):
+
+    conn = conectar_banco()
+
+    conn.execute(
+        """
+        DELETE FROM defensivos
+        WHERE id = ?
+        """,
+        (id,)
+    )
+
+    conn.commit()
+
+    conn.close()
+
+    flash(
+        "Defensivo excluído.",
+        "sucesso"
+    )
+
+    return redirect(
+        url_for("estoque")
+    )
+
+
+# =========================================================
+# APLICAÇÕES
+# =========================================================
 
 @app.route("/aplicacoes")
+@login_required
 def aplicacoes():
 
-    conexao = conectar_banco()
+    conn = conectar_banco()
 
-
-    aplicacoes = conexao.execute("""
+    registros = conn.execute(
+        """
         SELECT
+            a.*,
+            d.nome AS defensivo,
+            d.carencia,
+            t.nome AS talhao
 
-            aplicacoes.*,
+        FROM aplicacoes a
 
-            defensivos.nome AS defensivo,
+        JOIN defensivos d
+            ON d.id = a.defensivo_id
 
-            talhoes.nome AS talhao
+        JOIN talhoes t
+            ON t.id = a.talhao_id
 
-        FROM aplicacoes
+        ORDER BY
+            a.data_aplicacao DESC,
+            a.id DESC
+        """
+    ).fetchall()
 
-        INNER JOIN defensivos
-
-            ON aplicacoes.defensivo_id =
-               defensivos.id
-
-        INNER JOIN talhoes
-
-            ON aplicacoes.talhao_id =
-               talhoes.id
-
-        ORDER BY aplicacoes.id DESC
-
-    """).fetchall()
-
-
-    conexao.close()
-
-
-    hoje = datetime.now().date()
-
-
-    lista = []
-
-
-    for aplicacao in aplicacoes:
-
-        data_liberacao = datetime.strptime(
-            aplicacao["data_liberacao"],
-            "%Y-%m-%d"
-        ).date()
-
-
-        if hoje < data_liberacao:
-
-            status = "aguardando"
-
-        else:
-
-            status = "liberada"
-
-
-        lista.append({
-
-            "id": aplicacao["id"],
-
-            "defensivo":
-                aplicacao["defensivo"],
-
-            "talhao":
-                aplicacao["talhao"],
-
-            "data_aplicacao":
-                aplicacao["data_aplicacao"],
-
-            "quantidade":
-                aplicacao["quantidade"],
-
-            "responsavel":
-                aplicacao["responsavel"],
-
-            "data_liberacao":
-                aplicacao["data_liberacao"],
-
-            "status": status
-
-        })
-
+    conn.close()
 
     return render_template(
-
         "aplicacoes.html",
-
-        aplicacoes=lista
-
+        aplicacoes=registros
     )
 
 
-# ==========================================
+# =========================================================
+# EDITAR APLICAÇÃO
+# =========================================================
+
+@app.route(
+    "/editar-aplicacao/<int:id>",
+    methods=["GET", "POST"]
+)
+@login_required
+def editar_aplicacao(id):
+
+    conn = conectar_banco()
+
+    aplicacao = conn.execute(
+        """
+        SELECT
+            a.*,
+            d.nome AS defensivo,
+            t.nome AS talhao
+
+        FROM aplicacoes a
+
+        JOIN defensivos d
+            ON d.id = a.defensivo_id
+
+        JOIN talhoes t
+            ON t.id = a.talhao_id
+
+        WHERE a.id = ?
+        """,
+        (id,)
+    ).fetchone()
+
+    defensivos = conn.execute(
+        """
+        SELECT *
+        FROM defensivos
+        ORDER BY nome
+        """
+    ).fetchall()
+
+    talhoes = conn.execute(
+        """
+        SELECT *
+        FROM talhoes
+        ORDER BY nome
+        """
+    ).fetchall()
+
+    if not aplicacao:
+
+        conn.close()
+
+        flash(
+            "Aplicação não encontrada.",
+            "erro"
+        )
+
+        return redirect(
+            url_for("aplicacoes")
+        )
+
+    if request.method == "POST":
+
+        defensivo_id = request.form.get(
+            "defensivo_id"
+        )
+
+        talhao_id = request.form.get(
+            "talhao_id"
+        )
+
+        data_aplicacao = request.form.get(
+            "data_aplicacao"
+        )
+
+        try:
+
+            quantidade = float(
+                request.form.get(
+                    "quantidade",
+                    0
+                )
+            )
+
+        except ValueError:
+
+            quantidade = 0
+
+        responsavel = request.form.get(
+            "responsavel",
+            ""
+        ).strip()
+
+        novo_defensivo = conn.execute(
+            """
+            SELECT *
+            FROM defensivos
+            WHERE id = ?
+            """,
+            (defensivo_id,)
+        ).fetchone()
+
+        if (
+            not novo_defensivo
+            or quantidade <= 0
+            or not responsavel
+        ):
+
+            conn.close()
+
+            flash(
+                "Preencha os dados corretamente.",
+                "erro"
+            )
+
+            return render_template(
+                "editar_aplicacao.html",
+                aplicacao=aplicacao,
+                defensivos=defensivos,
+                talhoes=talhoes
+            )
+
+        # Devolve a quantidade antiga ao estoque
+        conn.execute(
+            """
+            UPDATE defensivos
+
+            SET estoque = estoque + ?
+
+            WHERE id = ?
+            """,
+            (
+                aplicacao["quantidade"],
+                aplicacao["defensivo_id"]
+            )
+        )
+
+        estoque_disponivel = (
+            novo_defensivo["estoque"]
+            +
+            (
+                aplicacao["quantidade"]
+                if novo_defensivo["id"]
+                ==
+                aplicacao["defensivo_id"]
+                else 0
+            )
+        )
+
+        if quantidade > estoque_disponivel:
+
+            conn.rollback()
+
+            conn.close()
+
+            flash(
+                "Estoque insuficiente para esta alteração.",
+                "erro"
+            )
+
+            return render_template(
+                "editar_aplicacao.html",
+                aplicacao=aplicacao,
+                defensivos=defensivos,
+                talhoes=talhoes
+            )
+
+        data_liberacao = (
+            datetime.strptime(
+                data_aplicacao,
+                "%Y-%m-%d"
+            )
+            +
+            timedelta(
+                days=int(
+                    novo_defensivo["carencia"] or 0
+                )
+            )
+        ).strftime("%Y-%m-%d")
+
+        conn.execute(
+            """
+            UPDATE aplicacoes
+
+            SET
+                defensivo_id = ?,
+                talhao_id = ?,
+                data_aplicacao = ?,
+                quantidade = ?,
+                responsavel = ?,
+                data_liberacao = ?
+
+            WHERE id = ?
+            """,
+            (
+                defensivo_id,
+                talhao_id,
+                data_aplicacao,
+                quantidade,
+                responsavel,
+                data_liberacao,
+                id
+            )
+        )
+
+        conn.execute(
+            """
+            UPDATE defensivos
+
+            SET estoque = estoque - ?
+
+            WHERE id = ?
+            """,
+            (
+                quantidade,
+                defensivo_id
+            )
+        )
+
+        conn.commit()
+
+        conn.close()
+
+        flash(
+            "Aplicação atualizada com sucesso.",
+            "sucesso"
+        )
+
+        return redirect(
+            url_for("aplicacoes")
+        )
+
+    conn.close()
+
+    return render_template(
+        "editar_aplicacao.html",
+        aplicacao=aplicacao,
+        defensivos=defensivos,
+        talhoes=talhoes
+    )
+
+
+# =========================================================
+# EXCLUIR APLICAÇÃO
+# =========================================================
+
+@app.route(
+    "/excluir-aplicacao/<int:id>",
+    methods=["POST"]
+)
+@login_required
+def excluir_aplicacao(id):
+
+    conn = conectar_banco()
+
+    aplicacao = conn.execute(
+        """
+        SELECT *
+        FROM aplicacoes
+        WHERE id = ?
+        """,
+        (id,)
+    ).fetchone()
+
+    if aplicacao:
+
+        conn.execute(
+            """
+            UPDATE defensivos
+
+            SET estoque = estoque + ?
+
+            WHERE id = ?
+            """,
+            (
+                aplicacao["quantidade"],
+                aplicacao["defensivo_id"]
+            )
+        )
+
+        conn.execute(
+            """
+            DELETE FROM aplicacoes
+            WHERE id = ?
+            """,
+            (id,)
+        )
+
+        conn.commit()
+
+    conn.close()
+
+    flash(
+        "Aplicação excluída.",
+        "sucesso"
+    )
+
+    return redirect(
+        url_for("aplicacoes")
+    )
+
+
+# =========================================================
+# RASTREABILIDADE
+# =========================================================
+
+@app.route("/rastreabilidade")
+@login_required
+def rastreabilidade():
+
+    conn = conectar_banco()
+
+    registros = conn.execute(
+        """
+        SELECT
+            a.*,
+            d.nome AS defensivo,
+            d.carencia,
+            t.nome AS talhao
+
+        FROM aplicacoes a
+
+        JOIN defensivos d
+            ON d.id = a.defensivo_id
+
+        JOIN talhoes t
+            ON t.id = a.talhao_id
+
+        ORDER BY
+            a.data_aplicacao DESC,
+            a.id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template(
+        "rastreabilidade.html",
+        aplicacoes=registros
+    )
+
+
+# =========================================================
+# EDITAR TALHÃO
+# =========================================================
+
+@app.route(
+    "/editar-talao/<int:id>",
+    methods=["GET", "POST"]
+)
+@login_required
+def editar_talhao(id):
+
+    conn = conectar_banco()
+
+    talhao = conn.execute(
+        """
+        SELECT *
+        FROM talhoes
+        WHERE id = ?
+        """,
+        (id,)
+    ).fetchone()
+
+    if not talhao:
+
+        conn.close()
+
+        flash(
+            "Talhão não encontrado.",
+            "erro"
+        )
+
+        return redirect(
+            url_for("rastreabilidade")
+        )
+
+    if request.method == "POST":
+
+        nome = request.form.get(
+            "nome",
+            ""
+        ).strip()
+
+        if nome:
+
+            conn.execute(
+                """
+                UPDATE talhoes
+
+                SET nome = ?
+
+                WHERE id = ?
+                """,
+                (
+                    nome,
+                    id
+                )
+            )
+
+            conn.commit()
+
+            conn.close()
+
+            flash(
+                "Talhão atualizado.",
+                "sucesso"
+            )
+
+            return redirect(
+                url_for("rastreabilidade")
+            )
+
+    conn.close()
+
+    return render_template(
+        "editar_talhao.html",
+        talhao=talhao
+    )
+
+
+# =========================================================
+# EXCLUIR TALHÃO
+# =========================================================
+
+@app.route(
+    "/excluir-talao/<int:id>",
+    methods=["POST"]
+)
+@login_required
+def excluir_talao(id):
+
+    conn = conectar_banco()
+
+    conn.execute(
+        """
+        DELETE FROM talhoes
+        WHERE id = ?
+        """,
+        (id,)
+    )
+
+    conn.commit()
+
+    conn.close()
+
+    flash(
+        "Talhão excluído.",
+        "sucesso"
+    )
+
+    return redirect(
+        url_for("rastreabilidade")
+    )
+
+
+# =========================================================
 # INICIAR SISTEMA
-# ==========================================
+# =========================================================
+
+criar_banco()
 
 if __name__ == "__main__":
-
-    criar_banco()
-
-    app.run(
-        debug=True
-    )
+    app.run(debug=True)

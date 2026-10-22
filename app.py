@@ -11,7 +11,8 @@ app = Flask(__name__)
 
 app.secret_key = "projeto-agro-chave"
 
-DATABASE = "banco.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, "banco.db")
 
 UPLOAD_FOLDER = os.path.join("static", "uploads", "perfis")
 
@@ -1981,10 +1982,7 @@ def excluir_talao(id):
 # INICIAR SISTEMA
 # =========================================================
 
+criar_banco()
+
 if __name__ == "__main__":
-
-    criar_banco()
-
-    app.run(
-        debug=True
-    )
+    app.run(debug=True)

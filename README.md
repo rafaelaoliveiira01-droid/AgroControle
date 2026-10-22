@@ -6,7 +6,7 @@ https://rafaelaoliveiira0101.pythonanywhere.com/
 
 ##  Sobre o projeto
 
-O AgroControl é uma aplicação web desenvolvida para auxiliar
+O AgroControle é uma aplicação web desenvolvida para auxiliar
 o produtor rural no gerenciamento de defensivos agrícolas,
 controle de estoque, registro de aplicações, rastreabilidade
 e acompanhamento do período de carência.

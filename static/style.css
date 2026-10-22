@@ -188,12 +188,10 @@ main {
     min-height: 340px;
 
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             #07351e 0%,
             #0b4025 50%,
-            #092719 100%
-        );
+            #092719 100%);
 
     border-left: 7px solid var(--green-bright);
 
@@ -240,7 +238,7 @@ main {
    CONTEÚDO HERO
    ========================================================= */
 
-.hero > div {
+.hero>div {
     position: relative;
 
     z-index: 2;
@@ -552,7 +550,7 @@ main {
     font-size: 14px;
 }
 
-.titulo-secao > a:not(.botao) {
+.titulo-secao>a:not(.botao) {
     color: var(--green-light);
 
     text-decoration: none;
@@ -1431,7 +1429,7 @@ select:focus {
     padding: 0 20px;
 }
 
-.container > h1 {
+.container>h1 {
     color: #ffffff;
 
     text-align: center;
@@ -1696,8 +1694,9 @@ footer {
     }
 }
 
+
 /* ==========================================
-   LOGIN E CADASTRO DE USUÁRIO
+   LOGIN E CADASTRO DE USUÁRIO - AGROCONTROL
    ========================================== */
 
 .pagina-login {
@@ -1705,55 +1704,204 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 30px 20px;
-    background: #07120c;
+    gap: 70px;
+    padding: 50px 24px;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(25, 196, 99, 0.12), transparent 35%),
+        linear-gradient(135deg, #06140c, #0b2415 55%, #07120c);
+    box-sizing: border-box;
 }
 
+/* Cartão do formulário */
 .login-card {
     width: 100%;
-    max-width: 460px;
+    max-width: 430px;
+    padding: 38px;
     background: #ffffff;
-    padding: 40px;
-    border-radius: 18px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(25, 196, 99, 0.15);
+    border-radius: 22px;
+    box-shadow: 0 24px 65px rgba(0, 0, 0, 0.30);
+    box-sizing: border-box;
+    animation: entradaCadastro 0.5s ease;
 }
 
 .cadastro-card {
-    max-width: 520px;
+    max-width: 450px;
 }
 
+/* Logo e apresentação */
 .login-logo {
-    text-align: center;
-    margin-bottom: 30px;
+    width: 100%;
+    max-width: 360px;
+    text-align: left;
+    margin-bottom: 0;
 }
 
 .logo-agro {
-    color: #19c463;
-    font-size: 30px;
+    color: #20d477;
+    font-size: clamp(30px, 4vw, 43px);
     font-weight: 900;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    line-height: 1.15;
 }
 
 .login-logo p {
-    color: #555;
-    margin-top: 8px;
+    color: #b7c9bd;
+    font-size: 16px;
+    line-height: 1.7;
+    margin-top: 14px;
 }
 
+/* Título do formulário */
 .login-card h1 {
-    text-align: center;
-    color: #07120c;
-    margin-bottom: 25px;
+    text-align: left;
+    color: #153b25;
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 26px;
 }
 
+/* Rótulos dos campos */
+.login-card label {
+    display: block;
+    color: #263c2e;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 0 7px;
+}
+
+/* Campos de entrada */
+.login-card input {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 14px;
+    margin-bottom: 17px;
+    border: 1px solid #d5e1d8;
+    border-radius: 10px;
+    background: #f8fbf9;
+    color: #17291d;
+    font: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.login-card input::placeholder {
+    color: #87968b;
+}
+
+.login-card input:focus {
+    outline: none;
+    border-color: #19b963;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(25, 185, 99, 0.12);
+}
+
+/* Botão principal */
+.login-card button,
+.login-card input[type="submit"] {
+    width: 100%;
+    min-height: 48px;
+    padding: 13px 18px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #20c96b, #11934b);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+}
+
+.login-card button:hover,
+.login-card input[type="submit"]:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 7px 18px rgba(17, 147, 75, 0.22);
+}
+
+/* Links e rodapé */
 .login-cadastro {
     text-align: center;
-    margin-top: 25px;
+    margin-top: 24px;
 }
 
 .login-cadastro p {
-    color: #555;
-    margin-bottom: 12px;
+    color: #59665d;
+    font-size: 14px;
+    margin-bottom: 10px;
 }
+
+.login-card a {
+    color: #128747;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.login-card a:hover {
+    color: #086531;
+    text-decoration: underline;
+}
+
+/* Mensagens de validação, caso existam */
+.login-card .alert,
+.login-card .mensagem {
+    margin-bottom: 16px;
+    padding: 11px 13px;
+    border-radius: 9px;
+    font-size: 14px;
+}
+
+/* Animação de entrada */
+@keyframes entradaCadastro {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Layout para celulares */
+@media (max-width: 760px) {
+    .pagina-login {
+        flex-direction: column;
+        gap: 30px;
+        padding: 32px 18px;
+    }
+
+    .login-logo {
+        max-width: 450px;
+        text-align: center;
+    }
+
+    .login-card {
+        max-width: 450px;
+        padding: 28px 23px;
+        border-radius: 18px;
+    }
+
+    .login-card h1 {
+        font-size: 25px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-card {
+        animation: none;
+    }
+
+    .login-card input,
+    .login-card button,
+    .login-card input[type="submit"] {
+        transition: none;
+    }
+}
+
 
 
 /* ==========================================
@@ -1786,10 +1934,8 @@ footer {
 
 .usuarios-grid {
     display: grid;
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(280px, 1fr)
-    );
+    grid-template-columns: repeat(auto-fit,
+            minmax(280px, 1fr));
     gap: 25px;
     margin-top: 30px;
 }

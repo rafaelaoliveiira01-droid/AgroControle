@@ -1695,6 +1695,7 @@ footer {
 }
 
 
+
 /* ==========================================
    LOGIN E CADASTRO DE USUÁRIO - AGROCONTROL
    ========================================== */
@@ -1717,7 +1718,7 @@ footer {
     width: 100%;
     max-width: 430px;
     padding: 38px;
-    background: #ffffff;
+    background: #000000;
     border: 1px solid rgba(25, 196, 99, 0.15);
     border-radius: 22px;
     box-shadow: 0 24px 65px rgba(0, 0, 0, 0.30);
@@ -1746,7 +1747,7 @@ footer {
 }
 
 .login-logo p {
-    color: #000000;
+    color: #b7c9bd;
     font-size: 16px;
     line-height: 1.7;
     margin-top: 14px;
@@ -1755,7 +1756,7 @@ footer {
 /* Título do formulário */
 .login-card h1 {
     text-align: left;
-    color: #153b25;
+    color: #64726a;
     font-size: 28px;
     font-weight: 800;
     margin: 0 0 26px;

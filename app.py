@@ -320,7 +320,7 @@ def login_required(view):
         if not session.get("usuario_id"):
 
             flash(
-                "Faça login para acessar o AgroControl.",
+                "Faça login para acessar o AgroControle.",
                 "erro"
             )
 

@@ -1,14 +1,37 @@
+import os
+import logging
+from logging.handlers import RotatingFileHandler
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
 from datetime import datetime, timedelta
 
-
 app = Flask(__name__)
 
-app.secret_key = "projeto-agro-chave"
+app.secret_key = os.environ.get("SECRET_KEY")
+
+if not app.secret_key:
+    raise RuntimeError("Configure a variável SECRET_KEY.")
 
 DATABASE = "banco.db"
 
+# Registro de eventos para segurança
+os.makedirs("logs", exist_ok=True)
+
+arquivo_log = RotatingFileHandler(
+    "logs/agrocontrol.log",
+    maxBytes=1_000_000,
+    backupCount=3,
+    encoding="utf-8"
+)
+
+arquivo_log.setFormatter(logging.Formatter(
+    "%(asctime)s - %(levelname)s - %(message)s"
+))
+
+app.logger.addHandler(arquivo_log)
+app.logger.setLevel(logging.INFO)
+app.logger.info("Sistema AgroControl iniciado")
 
 # ==========================================
 # CONEXÃO COM O BANCO

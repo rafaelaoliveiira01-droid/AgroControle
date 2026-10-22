@@ -220,3 +220,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Banco de dados e cópias de segurança
+banco.db
+banco_backup.db
+
+# Registros do sistema
+logs/
